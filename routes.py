@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify, render_template
 from werkzeug.utils import secure_filename
 from config import Config
 from services.document_service import allowed_file, extract_contract
+from services.ai_service import analyze_contract
 
 bp = Blueprint('routes', __name__)
 
@@ -36,6 +37,10 @@ def upload_file():
             
         # Execute processing layer pipeline
         result = extract_contract(save_path, filename)
+        
+        # Execute AI analysis pipeline
+        analysis_result = analyze_contract(result["clean_text"])
+        result["analysis"] = analysis_result
         
         # Clean up temporary storage space tracking
         if os.path.exists(save_path):

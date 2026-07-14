@@ -419,57 +419,180 @@
         resetUpload();
       });
     }
-
-    // Handle submit simulation
+    // Handle real file upload and AI analysis
     if (submitAnalysisBtn) {
       submitAnalysisBtn.addEventListener('click', function () {
-    
+        const file = contractFileInput.files[0];
+        if (!file) {
+          alert("Please select a file first.");
+          return;
+        }
+
         submitAnalysisBtn.disabled = true;
-    
         const btnText = submitAnalysisBtn.querySelector('span');
-    
         btnText.textContent = 'Analyzing...';
-    
-    
+
         // Show AI analyzing animation
         if (analyzingState) {
           analyzingState.style.display = 'flex';
         }
-    
-    
-        setTimeout(function () {
-    
-    
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/upload', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(data => {
+              throw new Error(data.error || 'Server error occurred during analysis.');
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
           // Hide loading state
           if (analyzingState) {
             analyzingState.style.display = 'none';
           }
-    
+
+          // Populate the analysis results dynamically
+          const analysis = data.analysis;
+          if (!analysis) {
+            throw new Error("No analysis payload returned from the server.");
+          }
+
+          // Find the sections by heading name
+          const h3Elements = document.querySelectorAll('#analysis-report h3');
+          h3Elements.forEach(h3 => {
+            // 1. Render Summary
+            if (h3.textContent.includes('Contract Summary')) {
+              const p = h3.nextElementSibling;
+              if (p) p.textContent = analysis.summary || 'No summary available.';
+            }
+            // 2. Render AI Suggestions / Questions
+            if (h3.textContent.includes('AI Suggestions') || h3.textContent.includes('Negotiation')) {
+              const ul = h3.nextElementSibling;
+              if (ul && ul.tagName === 'UL') {
+                ul.innerHTML = '';
+                const listItems = analysis.questions || [];
+                if (listItems.length === 0) {
+                  const li = document.createElement('li');
+                  li.textContent = "No negotiation suggestions identified.";
+                  ul.appendChild(li);
+                } else {
+                  listItems.forEach(q => {
+                    const li = document.createElement('li');
+                    li.textContent = q;
+                    ul.appendChild(li);
+                  });
+                }
+              }
+            }
+          });
+
+          // 3. Render Detected Risks / Clauses & Count Categories
+          const clauseListContainer = document.querySelector('#analysis-report .clause-list');
+          let highCount = 0;
+          let mediumCount = 0;
+          let lowCount = 0;
+
+          if (clauseListContainer) {
+            clauseListContainer.innerHTML = '';
+            const riskyClauses = analysis.risky_clauses || [];
+
+            if (riskyClauses.length === 0) {
+              clauseListContainer.innerHTML = `
+                <div class="clause-card low" style="border-left: 4px solid var(--color-success);">
+                  <div class="clause-header">
+                    <h4>🟢 No Major Risks Detected</h4>
+                    <span class="severity low">LOW</span>
+                  </div>
+                  <p>AI did not identify any high or medium risk clauses in this document.</p>
+                </div>
+              `;
+            } else {
+              riskyClauses.forEach(clause => {
+                const riskLower = (clause.risk || 'low').toLowerCase();
+                if (riskLower === 'high') highCount++;
+                else if (riskLower === 'medium') mediumCount++;
+                else lowCount++;
+
+                const cardClass = riskLower;
+                const dotEmoji = riskLower === 'high' ? '🔴' : riskLower === 'medium' ? '🟠' : '🟢';
+
+                const cardHtml = `
+                  <div class="clause-card ${cardClass}">
+                    <div class="clause-header">
+                      <h4>${dotEmoji} ${clause.category}</h4>
+                      <span class="severity ${cardClass}">${clause.risk.toUpperCase()}</span>
+                    </div>
+                    <p>${clause.reason}</p>
+                  </div>
+                `;
+                clauseListContainer.insertAdjacentHTML('beforeend', cardHtml);
+              });
+            }
+          }
+
+          // 4. Update Risk Cards Counts
+          const highRiskCardSpan = document.querySelector('#analysis-report .risk-card.high span');
+          if (highRiskCardSpan) highRiskCardSpan.textContent = `${highCount} Clause${highCount === 1 ? '' : 's'}`;
+
+          const medRiskCardSpan = document.querySelector('#analysis-report .risk-card.medium span');
+          if (medRiskCardSpan) medRiskCardSpan.textContent = `${mediumCount} Clause${mediumCount === 1 ? '' : 's'}`;
+
+          const lowRiskCardSpan = document.querySelector('#analysis-report .risk-card.low span');
+          if (lowRiskCardSpan) lowRiskCardSpan.textContent = `${lowCount} Clause${lowCount === 1 ? '' : 's'}`;
+
+          // 5. Calculate & Update Overall Risk Score
+          const totalScore = Math.min(100, (highCount * 30) + (mediumCount * 15) + (lowCount * 5));
+          const scoreP = document.querySelector('#analysis-report .risk-score p');
+          if (scoreP) scoreP.textContent = `${totalScore}%`;
+
+          const scoreSpan = document.querySelector('#analysis-report .risk-score span');
+          if (scoreSpan) {
+            if (totalScore >= 70) {
+              scoreSpan.textContent = 'High Risk';
+              scoreSpan.style.color = 'var(--color-accent)';
+            } else if (totalScore >= 30) {
+              scoreSpan.textContent = 'Medium Risk';
+              scoreSpan.style.color = 'var(--color-warning)';
+            } else {
+              scoreSpan.textContent = 'Low Risk';
+              scoreSpan.style.color = 'var(--color-success)';
+            }
+          }
+
           // Show Analysis Report
-      const analysisReport = document.getElementById('analysis-report');
+          const analysisReport = document.getElementById('analysis-report');
+          if (analysisReport) {
+            analysisReport.style.display = 'block';
+            analysisReport.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
 
-      if (analysisReport) {
-        analysisReport.style.display = 'block';
-
-
-        // Smooth scroll to report
-        analysisReport.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
+          btnText.textContent = 'Analysis Complete';
+          submitAnalysisBtn.disabled = false;
+        })
+        .catch(err => {
+          console.error("Analysis upload failed:", err);
+          alert("Analysis failed: " + err.message);
+          btnText.textContent = 'Analyze Contract';
+          submitAnalysisBtn.disabled = false;
+          if (analyzingState) {
+            analyzingState.style.display = 'none';
+          }
         });
-      }
+      });
+    }
+  }
 
-
-      btnText.textContent = 'Analysis Complete';
-
-      submitAnalysisBtn.disabled = false;
-
-
-    }, 3000);
-
-  });
-}
-    }  /**
+  /**
    * Validate file size/type and update UI states
    */
   function handleUploadedFiles(files) {

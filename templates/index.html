@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ContractShield — Understand legal contracts before you sign. AI-powered contract analysis for ContractVerse.">
+  <title>ContractShield | ContractVerse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app-layout" id="appLayout">
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <div class="sidebar__header">
+        <a href="#" class="sidebar__logo" aria-label="ContractShield home">
+          <span class="sidebar__logo-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L4 6V12C4 17.55 7.84 22.74 12 24C16.16 22.74 20 17.55 20 12V6L12 2Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+              <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="sidebar__logo-text">ContractShield</span>
+        </a>
+        <button class="sidebar__collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Collapse sidebar" title="Collapse sidebar">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar__body">
+        <button class="btn btn--primary sidebar__new-btn" id="sidebarNewBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>New Analysis</span>
+        </button>
+
+        <div class="sidebar__search">
+          <label for="searchContracts" class="visually-hidden">Search contracts</label>
+          <div class="search-input">
+            <svg class="search-input__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="search" id="searchContracts" class="search-input__field" placeholder="Search contracts..." autocomplete="off">
+          </div>
+        </div>
+
+        <nav class="sidebar__nav" aria-label="Recent analyses" id="sidebarHistoryContainer">
+          <!-- Scanned contract/clauses history will be rendered dynamically by JavaScript -->
+        </nav>
+      </div>
+
+      <footer class="sidebar__footer">
+        <button class="sidebar__action" type="button">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.75"/>
+            <path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.258 9.77251 19.9887C9.5799 19.7194 9.31074 19.5143 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.896 4.29 19.71C4.10405 19.5243 3.95653 19.3037 3.85588 19.0609C3.75523 18.8181 3.70343 18.5578 3.70343 18.295C3.70343 18.0322 3.75523 17.7719 3.85588 17.5291C3.95653 17.2863 4.10405 17.0657 4.29 16.88L4.35 16.82C4.58054 16.5843 4.73519 16.285 4.794 15.9606C4.85282 15.6362 4.81312 15.3016 4.68 15C4.55324 14.7042 4.34276 14.452 4.07447 14.2743C3.80618 14.0966 3.49179 14.0013 3.17 14H3C2.46957 14 1.96086 13.7893 1.58579 13.4142C1.21071 13.0391 1 12.5304 1 12C1 11.4696 1.21071 10.9609 1.58579 10.5858C1.96086 10.2107 2.46957 10 3 10H3.09C3.42099 9.99228 3.742 9.88512 4.0113 9.69251C4.28059 9.4999 4.48572 9.23074 4.6 8.92C4.73312 8.61838 4.77282 8.28381 4.714 7.95941C4.65519 7.63502 4.50054 7.33568 4.27 7.1L4.21 7.04C4.02405 6.85425 3.87653 6.63368 3.77588 6.39088C3.67523 6.14808 3.62343 5.88783 3.62343 5.625C3.62343 5.36217 3.67523 5.10192 3.77588 4.85912C3.87653 4.61632 4.02405 4.39575 4.21 4.21C4.39575 4.02405 4.61632 3.87653 4.85912 3.77588C5.10192 3.67523 5.36217 3.62343 5.625 3.62343C5.88783 3.62343 6.14808 3.67523 6.39088 3.77588C6.63368 3.87653 6.85425 4.02405 7.04 4.21L7.1 4.27C7.33568 4.50054 7.63502 4.65519 7.95941 4.714C8.28381 4.77282 8.61838 4.73312 8.92 4.6C9.23074 4.48572 9.4999 4.28059 9.69251 4.0113C9.88512 3.742 9.99228 3.42099 10 3.09V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.32 9.53043 19.5307 10.0391 19.9058 10.4142C20.2809 10.7893 20.7896 11 21.32 11H21.5C22.0304 11 22.5391 11.2107 22.9142 11.5858C23.2893 11.9609 23.5 12.4696 23.5 13C23.5 13.5304 23.2893 14.0391 22.9142 14.4142C22.5391 14.7893 22.0304 15 21.5 15H21.41C21.0882 15.0013 20.7738 15.0966 20.5055 15.2743C20.2372 15.452 20.0268 15.7042 19.9 16V16Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+          </svg>
+          <span>Settings</span>
+        </button>
+
+        <div class="sidebar__toggle-row">
+          <span class="sidebar__toggle-label">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+            </svg>
+            Dark Mode
+          </span>
+          <button class="toggle-switch" id="darkModeToggle" type="button" role="switch" aria-checked="false" aria-label="Toggle dark mode">
+            <span class="toggle-switch__thumb"></span>
+          </button>
+        </div>
+
+        <div class="user-profile">
+          <div class="user-profile__avatar" aria-hidden="true">CV</div>
+          <div class="user-profile__info">
+            <span class="user-profile__name">ContractVerse</span>
+            <span class="user-profile__plan">Free Plan</span>
+          </div>
+        </div>
+      </footer>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="mainContent">
+
+      <!-- Top Navigation Bar -->
+      <header class="top-navbar" id="topNavbar">
+        <div class="top-navbar__left">
+          <button class="top-navbar__hamburger" id="hamburgerBtn" type="button" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="sidebar">
+            <svg class="top-navbar__hamburger-icon top-navbar__hamburger-icon--open" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <svg class="top-navbar__hamburger-icon top-navbar__hamburger-icon--close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <h1 class="top-navbar__title">ContractShield AI</h1>
+        </div>
+
+        <div class="top-navbar__center">
+          <label for="navSearchAnalyses" class="visually-hidden">Search analyses</label>
+          <div class="top-navbar__search">
+            <svg class="top-navbar__search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+              <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="search" id="navSearchAnalyses" class="top-navbar__search-input" placeholder="Search analyses..." autocomplete="off">
+          </div>
+        </div>
+
+        <div class="top-navbar__right">
+          <button class="top-navbar__icon-btn" id="notificationBtn" type="button" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+              <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+            <span class="top-navbar__notification-dot" aria-hidden="true"></span>
+          </button>
+
+          <button class="top-navbar__icon-btn top-navbar__theme-btn" id="navThemeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">
+            <svg class="top-navbar__theme-icon top-navbar__theme-icon--light" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/>
+              <path d="M12 2V4M12 20V22M4.93 4.93L6.34 6.34M17.66 17.66L19.07 19.07M2 12H4M20 12H22M4.93 19.07L6.34 17.66M17.66 6.34L19.07 4.93" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+            </svg>
+            <svg class="top-navbar__theme-icon top-navbar__theme-icon--dark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <button class="top-navbar__profile" id="profileBtn" type="button" aria-label="User profile menu" aria-haspopup="true" aria-expanded="false">
+            <span class="top-navbar__avatar" aria-hidden="true">CV</span>
+            <svg class="top-navbar__profile-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="main-scroll">
+      <section class="hero" aria-label="Product introduction">
+        <div class="hero__container">
+          <!-- Left side: Content -->
+          <div class="hero__content">
+            <div class="hero__badge">
+              <span class="hero__badge-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                  <path d="M12 2L4 6V12C4 17.55 7.84 22.74 12 24C16.16 22.74 20 17.55 20 12V6L12 2Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span class="hero__badge-text">AI-Powered Legal Assistant</span>
+            </div>
+            <h2 class="hero__title">Understand Legal Risks <span class="hero__title-gradient">Before You Sign</span></h2>
+            <p class="hero__description">
+              ContractShield simplifies legal documents in seconds. Automatically detect risky clauses, summarize key contract terms, and retrieve the actionable insights you need to make fast, informed signing decisions.
+            </p>
+            <div class="hero__actions">
+              <button class="btn btn--primary hero__btn hero__btn--primary" id="heroUploadBtn" type="button">
+                <span>Analyze Contract</span>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                  <path d="M9 12H15M9 16H13M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.14901 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="btn btn--secondary hero__btn hero__btn--secondary" id="heroDemoBtn" type="button">
+                <span>Learn More</span>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="hero__features">
+              <span class="hero__feature-chip">
+                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
+                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                AI Summaries
+              </span>
+              <span class="hero__feature-chip">
+                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
+                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Risk Detection
+              </span>
+              <span class="hero__feature-chip">
+                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
+                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Clause Simplification
+              </span>
+              <span class="hero__feature-chip">
+                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
+                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Secure Uploads
+              </span>
+            </div>
+            <div class="hero__social">
+              <div class="hero__social-avatars">
+                <span class="hero__social-avatar" aria-hidden="true">🛡️</span>
+                <span class="hero__social-avatar" aria-hidden="true">⚖️</span>
+                <span class="hero__social-avatar" aria-hidden="true">🔍</span>
+              </div>
+              <span class="hero__social-text">Trusted by 500+ legal teams and independent consultants</span>
+            </div>
+          </div>
+
+          <!-- Right side: Dashboard Mockup -->
+          <div class="hero__mockup">
+            <div class="mock-dashboard" id="mockDashboard">
+              <!-- Mock Window Topbar -->
+              <div class="mock-dashboard__header">
+                <div class="mock-dashboard__dots">
+                  <span class="mock-dashboard__dot mock-dashboard__dot--red"></span>
+                  <span class="mock-dashboard__dot mock-dashboard__dot--yellow"></span>
+                  <span class="mock-dashboard__dot mock-dashboard__dot--green"></span>
+                </div>
+                <div class="mock-dashboard__address">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="mock-dashboard__address-icon" width="12" height="12">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                  <span>analysis.contractshield.ai/nda-audit</span>
+                </div>
+              </div>
+
+              <!-- Mock Dashboard Main Panel -->
+              <div class="mock-dashboard__content">
+                <!-- Left panel of mockup: Document View -->
+                <div class="mock-dashboard__doc-panel">
+                  <div class="mock-dashboard__doc-header">
+                    <span class="mock-dashboard__doc-title">Mutual_NDA_Draft.pdf</span>
+                    <span class="mock-dashboard__doc-status">
+                      <span class="mock-dashboard__status-dot"></span>
+                      Audit Complete
+                    </span>
+                  </div>
+                  <div class="mock-dashboard__doc-body">
+                    <p class="mock-doc-paragraph">4. <strong>Confidentiality Obligations.</strong> The Receiving Party shall hold the Confidential Information in strict confidence and shall not disclose such information to any third party...</p>
+                    
+                    <div class="mock-clause mock-clause--high-risk" data-clause="clause-1" id="mockClause1">
+                      <p class="mock-doc-paragraph">
+                        5. <strong>Limitation of Liability.</strong> IN NO EVENT SHALL EITHER PARTY BE LIABLE FOR ANY CONSEQUENTIAL, INDIRECT, SPECIAL, OR PUNITIVE DAMAGES, EXCEPT THAT THE RECEIVING PARTY'S LIABILITY FOR BREACH OF CONFIDENTIALITY SHALL BE <span class="mock-highlight mock-highlight--high">ENTIRELY UNLIMITED AND UNAPPED</span>.
+                      </p>
+                      <div class="mock-tooltip" id="tooltipClause1">
+                        <div class="mock-tooltip__header">
+                          <span class="mock-tooltip__risk-badge">⚠️ High Risk</span>
+                          <span>Sec. 5</span>
+                        </div>
+                        <p class="mock-tooltip__text">Unlimited liability exposes the company to extreme financial damages. Recommended: Cap liability at 1.5x - 2x annual contract value.</p>
+                      </div>
+                    </div>
+                    
+                    <p class="mock-doc-paragraph">6. <strong>Governing Law.</strong> This Agreement shall be governed by, and construed in accordance with, the laws of the State of New York, without regard to conflict of laws principles...</p>
+                    
+                    <div class="mock-clause mock-clause--med-risk" data-clause="clause-2" id="mockClause2">
+                      <p class="mock-doc-paragraph">
+                        7. <strong>Intellectual Property.</strong> All intellectual property created by the Disclosing Party prior to or during the term of this Agreement <span class="mock-highlight mock-highlight--med">shall automatically transfer</span> to the Receiving Party upon signing.
+                      </p>
+                      <div class="mock-tooltip" id="tooltipClause2">
+                        <div class="mock-tooltip__header">
+                          <span class="mock-tooltip__risk-badge mock-tooltip__risk-badge--warning">⚠️ Warning</span>
+                          <span>Sec. 7</span>
+                        </div>
+                        <p class="mock-tooltip__text">IP transferring automatically upon NDA signing is abnormal. Re-draft to retain IP ownership rights prior to definitive agreement.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right panel of mockup: AI Insights -->
+                <div class="mock-dashboard__analysis-panel">
+                  <!-- Summary Card (Risk Gauge + Overview) -->
+                  <div class="mock-card">
+                    <div class="mock-card__header">
+                      <span class="mock-card__title">Analysis Summary</span>
+                      <span class="mock-badge mock-badge--risk">82% High Risk</span>
+                    </div>
+                    <div class="mock-card__body">
+                      <div class="mock-risk-meter">
+                        <svg viewBox="0 0 100 100" class="mock-risk-meter__svg" width="64" height="64">
+                          <circle cx="50" cy="50" r="40" stroke="var(--color-gray-200)" stroke-width="8" fill="transparent" />
+                          <circle cx="50" cy="50" r="40" stroke="var(--color-accent)" stroke-width="8" fill="transparent" 
+                                  stroke-dasharray="251.2" stroke-dashoffset="251.2" class="mock-risk-meter__progress" id="mockRiskProgress" />
+                        </svg>
+                        <div class="mock-risk-meter__value">
+                          <span class="mock-risk-meter__number">82</span>
+                          <span class="mock-risk-meter__label">Risk Index</span>
+                        </div>
+                      </div>
+                      <p class="mock-card__summary-text" style="font-size: 10px; line-height: 1.4; color: var(--color-gray-500); margin-top: 10px;">
+                        AI analysis completed. Two critical issues regarding <strong>Intellectual Property assignment</strong> and <strong>uncapped liability</strong> require negotiation.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Obligations Checklist Card -->
+                  <div class="mock-card">
+                    <div class="mock-card__header">
+                      <span class="mock-card__title">Obligations Checklist</span>
+                    </div>
+                    <div class="mock-checklist">
+                      <div class="mock-checklist__item">
+                        <svg class="mock-checklist__icon mock-checklist__icon--success" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true">
+                          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="mock-checklist__text">Confidentiality Obligations (Mutual)</span>
+                        <span class="mock-checklist__status-pill mock-checklist__status-pill--success">Compliant</span>
+                      </div>
+                      <div class="mock-checklist__item">
+                        <svg class="mock-checklist__icon mock-checklist__icon--success" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true">
+                          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="mock-checklist__text">Governing Law (New York)</span>
+                        <span class="mock-checklist__status-pill mock-checklist__status-pill--success">Standard</span>
+                      </div>
+                      <div class="mock-checklist__item">
+                        <svg class="mock-checklist__icon mock-checklist__icon--danger" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true">
+                          <path d="M12 9V13M12 17H12.01M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="mock-checklist__text">Liability Cap Clause (Missing)</span>
+                        <span class="mock-checklist__status-pill mock-checklist__status-pill--danger">Critical</span>
+                      </div>
+                      <div class="mock-checklist__item">
+                        <svg class="mock-checklist__icon mock-checklist__icon--warning" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="13" height="13" aria-hidden="true">
+                          <path d="M12 9V13M12 17H12.01M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="mock-checklist__text">Pre-existing Intellectual Property</span>
+                        <span class="mock-checklist__status-pill mock-checklist__status-pill--warning">Warning</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Clause 1 Card -->
+                  <div class="mock-card mock-card--interactive" data-clause="clause-1" id="mockCardClause1">
+                    <div class="mock-card__header">
+                      <span class="mock-card__sub">Sec. 5: Limitation of Liability</span>
+                      <span class="mock-badge mock-badge--high">High Risk</span>
+                    </div>
+                    <p class="mock-card__text">Unlimited exposure for confidentiality breach. Redraft to add a reasonable cap.</p>
+                    <button class="mock-card__action" type="button">Suggest Redraft</button>
+                  </div>
+
+                  <!-- Clause 2 Card -->
+                  <div class="mock-card mock-card--interactive" data-clause="clause-2" id="mockCardClause2">
+                    <div class="mock-card__header">
+                      <span class="mock-card__sub">Sec. 7: Intellectual Property</span>
+                      <span class="mock-badge mock-badge--warning">Warning</span>
+                    </div>
+                    <p class="mock-card__text">IP transfers automatically upon signature. Restructure clause to protect IP ownership.</p>
+                    <button class="mock-card__action" type="button">Suggest Redraft</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- ADD THIS BLOCK AFTER THE HERO SECTION -->
+      <section class="how-it-works" id="howItWorks">
+        <div class="how-it-works__container">
+          <h2 class="how-it-works__title">How ContractShield Works</h2>
+          <div class="how-it-works__grid">
+            <article class="how-step">
+              <div class="how-step__icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h3>Upload Contract</h3>
+              <p>Securely upload your PDF or DOCX file.</p>
+            </article>
+            <article class="how-step">
+              <div class="how-step__icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <h3>AI Extracts Clauses</h3>
+              <p>Our AI parses and isolates key legal clauses.</p>
+            </article>
+            <article class="how-step">
+              <div class="how-step__icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <h3>Detects Risks</h3>
+              <p>We cross-reference against compliance patterns.</p>
+            </article>
+            <article class="how-step">
+              <div class="how-step__icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                </svg>
+              </div>
+              <h3>Generates Report</h3>
+              <p>Get an instant breakdown of liabilities.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="upload-sec" id="uploadSection" aria-labelledby="uploadTitle">
+        <div class="upload-sec__container">
+          <div class="upload-sec__header">
+            <h3 class="upload-sec__title" id="uploadTitle">Upload Your Contract</h3>
+            <p class="upload-sec__subtitle">Select a PDF or DOCX file to initiate the AI compliance scan and risk assessment.</p>
+          </div>
+          
+          <div class="upload-card">
+            <!-- Hidden input for file selection -->
+            <input type="file" id="contractFileInput" accept=".pdf,.docx" class="visually-hidden">
+            
+            <!-- Drag & Drop Zone -->
+            <div class="upload-dropzone" id="uploadDropzone">
+              <div class="upload-dropzone__body">
+                <div class="upload-dropzone__icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="40" height="40">
+                    <path d="M12 16V9M12 9L9 12M12 9L15 12M20 16.58C21.196 15.683 21.879 14.249 21.879 12.72C21.879 9.87 19.57 7.56 16.72 7.56C16.48 7.56 16.24 7.58 16.01 7.62C15.22 4.97 12.76 3 9.84 3C6.01 3 2.91 6.1 2.91 9.93C2.91 10.63 3.02 11.31 3.22 11.95C1.89 12.87 1 14.43 1 16.2C1 19.4 3.6 22 6.8 22H17.2C19.85 22 22 19.85 22 17.2C22 16.99 22 16.78 21.97 16.58H20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <p class="upload-dropzone__primary-text">Drag and drop your contract here, or click to browse</p>
+                <p class="upload-dropzone__secondary-text">Supports PDF, DOCX (Max 10 MB)</p>
+                <label for="contractFileInput" class="btn btn--secondary upload-dropzone__btn">
+                  Choose File
+                </label>
+              </div>
+            </div>
+            
+            <!-- File Status Panel (initially hidden) -->
+            <div class="upload-status-panel" id="uploadStatusPanel" style="display: none;">
+              <div class="upload-status-panel__file-info">
+                <div class="upload-status-panel__file-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24">
+                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="upload-status-panel__file-details">
+                  <span class="upload-status-panel__file-name" id="uploadedFileName">Employment_Contract.pdf</span>
+                  <span class="upload-status-panel__file-size" id="uploadedFileSize">1.2 MB</span>
+                </div>
+                <button class="upload-status-panel__remove-btn" id="removeFileBtn" type="button" aria-label="Remove selected file">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Upload Progress -->
+<div class="upload-progress" id="uploadProgress">
+
+  <div class="upload-progress__header">
+    <span>Uploading...</span>
+    <span id="uploadPercent">0%</span>
+  </div>
+
+  <div class="upload-progress__bar">
+    <div class="upload-progress__fill" id="uploadProgressFill"></div>
+  </div>
+
+</div>
+
+
+<!-- Upload Success -->
+<div class="upload-success" id="uploadSuccess">
+  ✓ Contract uploaded successfully
+</div>
+
+
+<!-- AI Analysis Loading -->
+<div class="analyzing-state" id="analyzingState">
+
+  <div class="ai-loader"></div>
+
+  <div class="analyzing-state__text">
+    Analyzing Contract...
+  </div>
+
+  <small>
+    AI is reviewing clauses and identifying risks
+  </small>
+
+</div>
+            
+            <!-- Submit button -->
+            <button class="btn btn--primary upload-card__submit-btn" id="submitAnalysisBtn" type="button" disabled>
+              <span>Analyze Contract</span>
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+      </div>
+    </main>
+
+  </div>
+
+<section id="analysis-report" class="analysis-report" style="display: none;">
+
+  <div class="analysis-report__header">
+    <h2>Contract Analysis Report</h2>
+    <button class="report-download-btn" id="downloadReportBtn" type="button">
+      <svg class="report-download-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+        <path d="M12 15V3M12 15L8 11M12 15L16 11M5 17H19V19H5V17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="report-download-btn__text">Download Report PDF</span>
+    </button>
+  </div>
+
+  <div class="report-card">
+
+      <div class="risk-score">
+          <h3>Overall Risk Score</h3>
+          <p>78%</p>
+          <span>Medium Risk</span>
+      </div>
+
+      <div class="risk-summary">
+
+        <div class="risk-card high">
+          <h4>
+    <span class="risk-dot high-dot"></span>
+    High Risk
+</h4>
+          <span>2 Clauses</span>
+        </div>
+
+      <div class="risk-card medium">
+          <h4>
+    <span class="risk-dot medium-dot"></span>
+    Medium Risk
+</h4>
+          <span>4 Clauses</span>
+      </div>
+
+      <div class="risk-card low">
+          <h4>
+    <span class="risk-dot low-dot"></span>
+    Low Risk
+</h4>
+          <span>7 Clauses</span>
+      </div>
+
+      </div>
+      <div class="report-section">
+          <h3>⚠ Detected Risks</h3>
+          <div class="clause-list">
+
+    <div class="clause-card high">
+        <div class="clause-header">
+            <h4>🔴 Unlimited Liability</h4>
+            <span class="severity high">HIGH</span>
+        </div>
+
+        <p>
+            This clause exposes one party to unlimited legal liability,
+            increasing financial risk.
+        </p>
+
+        <div class="clause-tip">
+            💡 AI Suggestion:
+            Limit liability to direct damages only.
+        </div>
+    </div>
+
+    <div class="clause-card medium">
+        <div class="clause-header">
+            <h4>🟠 Ambiguous Termination</h4>
+            <span class="severity medium">MEDIUM</span>
+        </div>
+
+        <p>
+            The termination process is unclear and may cause disputes.
+        </p>
+
+        <div class="clause-tip">
+            💡 AI Suggestion:
+            Define notice period and termination conditions.
+        </div>
+    </div>
+
+    <div class="clause-card low">
+        <div class="clause-header">
+            <h4>🟢 Governing Law</h4>
+            <span class="severity low">LOW</span>
+        </div>
+
+        <p>
+            Governing law exists but could be more specific.
+        </p>
+
+        <div class="clause-tip">
+            💡 AI Suggestion:
+            Mention the exact jurisdiction.
+        </div>
+    </div>
+
+</div>
+      </div>
+
+      <div class="report-section">
+          <h3>🤖 AI Suggestions</h3>
+          <ul>
+              <li>Review payment conditions</li>
+              <li>Modify penalty clauses</li>
+              <li>Add confidentiality agreement</li>
+          </ul>
+      </div>
+
+      <div class="report-section">
+          <h3>📄 Contract Summary</h3>
+          <p>
+              This contract contains multiple clauses requiring review.
+              AI analysis suggests modifications before signing.
+          </p>
+      </div>
+
+  </div>
+
+  <!-- Clause Detail Modal -->
+  <div class="clause-modal-overlay" id="clauseDetailModal" aria-hidden="true">
+    <div class="clause-modal-container" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+      <button class="clause-modal-close" id="modalCloseBtn" aria-label="Close modal" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      
+      <div class="clause-modal-header">
+        <span class="clause-modal-badge" id="modalSeverityBadge">Severity</span>
+        <h3 class="clause-modal-title" id="modalTitle">Clause Title</h3>
+      </div>
+      
+      <div class="clause-modal-body">
+        <div class="clause-modal-section">
+          <h4 class="clause-modal-section-title">Original Clause Text</h4>
+          <blockquote class="clause-modal-quote" id="modalClauseText">
+            Clause text.
+          </blockquote>
+        </div>
+        
+        <div class="clause-modal-section">
+          <h4 class="clause-modal-section-title">Why it is risky</h4>
+          <p id="modalRiskExplanation">
+            Risk explanation.
+          </p>
+        </div>
+        
+        <div class="clause-modal-section">
+          <h4 class="clause-modal-section-title">AI Explanation & Analysis</h4>
+          <p id="modalAiExplanation">
+            AI analysis description.
+          </p>
+        </div>
+        
+        <div class="clause-modal-section">
+          <h4 class="clause-modal-section-title">Recommended Action</h4>
+          <div class="clause-modal-recommendation" id="modalRecommendation">
+            Recommended negotiation or redrafting action.
+          </div>
+        </div>
+      </div>
+      
+      <div class="clause-modal-footer">
+        <button class="btn btn--secondary" id="modalCloseActionBtn" type="button">Close</button>
+        <button class="btn btn--primary" id="modalSuggestRedraftBtn" type="button">Suggest Redraft</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+   <div class="main-footer__content">
+
+    <p class="main-footer__disclaimer">
+      <strong>Disclaimer:</strong> ContractShield provides AI-generated insights for informational purposes only and does not replace professional legal advice.
+    </p>
+
+    <div class="main-footer__meta">
+      <div class="main-footer__links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms</a>
+        <a href="#">Security</a>
+      </div>
+
+      <p>
+        © 2026 ContractVerse. All rights reserved.
+      </p>
+    </div>
+
+  </div>
+</footer>
+</body>
+</html>

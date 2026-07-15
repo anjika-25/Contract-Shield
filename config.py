@@ -9,8 +9,8 @@ BASE_DIR = Path(__file__).resolve().parent
 
 # Gemini Configuration
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-# Default model: gemini-3.5-flash (since gemini-2.5-flash is deprecated/unavailable)
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
+# Default model: gemini-1.5-flash (which offers a much higher free quota of 1500 requests/day compared to 20/day on 3.5)
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "legallens_secret_key_123!")

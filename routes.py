@@ -9,7 +9,7 @@ bp = Blueprint('routes', __name__)
 
 @bp.route('/')
 def home():
-    return render_template('index.html')  # Placeholder layout for rendering uploads
+    return render_template('index.html')
 
 @bp.route('/upload', methods=['POST'])
 def upload_file():

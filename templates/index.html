@@ -591,77 +591,58 @@
       </div>
 
       </div>
+      <!-- Summary Section -->
       <div class="report-section">
-          <h3>⚠ Detected Risks</h3>
-          <div class="clause-list">
-
-    <div class="clause-card high">
-        <div class="clause-header">
-            <h4>🔴 Unlimited Liability</h4>
-            <span class="severity high">HIGH</span>
-        </div>
-
-        <p>
-            This clause exposes one party to unlimited legal liability,
-            increasing financial risk.
-        </p>
-
-        <div class="clause-tip">
-            💡 AI Suggestion:
-            Limit liability to direct damages only.
-        </div>
-    </div>
-
-    <div class="clause-card medium">
-        <div class="clause-header">
-            <h4>🟠 Ambiguous Termination</h4>
-            <span class="severity medium">MEDIUM</span>
-        </div>
-
-        <p>
-            The termination process is unclear and may cause disputes.
-        </p>
-
-        <div class="clause-tip">
-            💡 AI Suggestion:
-            Define notice period and termination conditions.
-        </div>
-    </div>
-
-    <div class="clause-card low">
-        <div class="clause-header">
-            <h4>🟢 Governing Law</h4>
-            <span class="severity low">LOW</span>
-        </div>
-
-        <p>
-            Governing law exists but could be more specific.
-        </p>
-
-        <div class="clause-tip">
-            💡 AI Suggestion:
-            Mention the exact jurisdiction.
-        </div>
-    </div>
-
-</div>
+          <h3>📄 Contract Summary</h3>
+          <p id="reportSummaryText">
+              This contract contains multiple clauses requiring review.
+              AI analysis suggests modifications before signing.
+          </p>
       </div>
 
+      <!-- Detected Risks Table -->
       <div class="report-section">
-          <h3>🤖 AI Suggestions</h3>
-          <ul>
+          <h3>⚠ Detected Risks & Recommendations</h3>
+          <div class="report-table-wrapper">
+              <table class="report-table" id="risksTable">
+                  <thead>
+                      <tr>
+                          <th>Clause / Location</th>
+                          <th>Severity</th>
+                          <th>Explanation & Risk</th>
+                          <th>Recommendation</th>
+                      </tr>
+                  </thead>
+                  <tbody id="risksTableBody">
+                      <tr class="mock-row">
+                          <td><strong>🔴 Unlimited Liability</strong> (Sec. 5)</td>
+                          <td><span class="severity high">HIGH</span></td>
+                          <td>Exposes one party to unlimited legal liability, bypassing standard commercial caps.</td>
+                          <td>Limit liability to direct damages only, capped at 1x contract value.</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- AI Suggestions Section -->
+      <div class="report-section">
+          <h3>🤖 AI Key Suggestions</h3>
+          <ul id="reportSuggestionsList">
               <li>Review payment conditions</li>
               <li>Modify penalty clauses</li>
               <li>Add confidentiality agreement</li>
           </ul>
       </div>
 
-      <div class="report-section">
-          <h3>📄 Contract Summary</h3>
-          <p>
-              This contract contains multiple clauses requiring review.
-              AI analysis suggests modifications before signing.
-          </p>
+      <!-- Questions Before Signing Section -->
+      <div class="report-section" id="reportQuestionsSection">
+          <h3>❓ Questions Before Signing</h3>
+          <ul id="reportQuestionsList">
+              <li>Can this clause be negotiated?</li>
+              <li>Are renewal terms optional?</li>
+              <li>What liabilities remain after termination?</li>
+          </ul>
       </div>
 
   </div>

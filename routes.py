@@ -6,11 +6,12 @@ from werkzeug.utils import secure_filename
 from config import Config
 from services.document_service import allowed_file, extract_contract
 from services.ai_service import analyze_contract
+from services.contract_type import classify_contract_type
 from services.database_service import insert_contract, get_all_contracts, delete_contract
 
 bp = Blueprint('routes', __name__)
 
-def map_analysis_to_db_record(filename: str, analysis: dict) -> dict:
+def map_analysis_to_db_record(filename: str, analysis: dict, contract_type: str) -> dict:
     """Maps raw LLM analysis output to the database record structure."""
     high_count = 0
     medium_count = 0
@@ -29,10 +30,14 @@ def map_analysis_to_db_record(filename: str, analysis: dict) -> dict:
         emoji = "🔴" if risk_lower == "high" else "🟠" if risk_lower == "medium" else "🟢"
         category = clause.get("category", "General")
         reason = clause.get("reason", "")
+        location = clause.get("location", "Unknown")
+        
+        # Format title to include section location
+        title_str = f"{emoji} {category} ({location})" if location != "Unknown" else f"{emoji} {category}"
         
         clauses_mapped.append({
             "id": f"clause-new-{idx}",
-            "title": f"{emoji} {category}",
+            "title": title_str,
             "severity": risk_lower,
             "text": f"This agreement is subject to terms and covenants governing the {category} category.",
             "risk": reason,
@@ -73,6 +78,9 @@ def map_analysis_to_db_record(filename: str, analysis: dict) -> dict:
     scan_time = datetime.now().strftime("%I:%M %p")
     date_str = f"Today, {scan_time}"
     
+    # Extract questions list directly
+    questions_list = analysis.get("questions", [])
+    
     return {
         "id": f"h_new_{int(time.time() * 1000)}",
         "name": filename,
@@ -82,7 +90,9 @@ def map_analysis_to_db_record(filename: str, analysis: dict) -> dict:
         "riskLevel": level,
         "summary": analysis.get("summary", ""),
         "obligations": obligations_mapped,
-        "clauses": clauses_mapped
+        "clauses": clauses_mapped,
+        "contractType": contract_type,
+        "questions": questions_list
     }
 
 @bp.route('/')
@@ -138,8 +148,11 @@ def upload_file():
         # Execute AI analysis pipeline
         analysis_result = analyze_contract(result["clean_text"])
         
+        # Classify contract type
+        contract_type = classify_contract_type(result["clean_text"])
+        
         # Map and save to database
-        db_record = map_analysis_to_db_record(filename, analysis_result)
+        db_record = map_analysis_to_db_record(filename, analysis_result, contract_type)
         insert_contract(db_record)
         
         # Return the database record

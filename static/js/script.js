@@ -718,7 +718,10 @@
 
     // 5. Update Full Report Section
     const reportTitle = document.querySelector('.analysis-report h2');
-    if (reportTitle) reportTitle.textContent = `Contract Analysis Report: ${contract.name}`;
+    if (reportTitle) {
+      const cType = contract.contractType || 'Contract';
+      reportTitle.textContent = `Contract Analysis Report: ${cType} - ${contract.name}`;
+    }
 
     const reportScoreText = document.querySelector('.risk-score p');
     if (reportScoreText) reportScoreText.textContent = `${contract.riskScore}%`;
@@ -741,48 +744,56 @@
       scoreSummaryCards[2].querySelector('span:not(.risk-dot)').textContent = `${lowCount} Clause${lowCount !== 1 ? 's' : ''}`;
     }
 
-    // Dynamic Report Detected Clauses Cards
-    const clauseListContainer = document.querySelector('.clause-list');
-    if (clauseListContainer) {
-      clauseListContainer.innerHTML = '';
-      
-      contract.clauses.forEach(clause => {
-        const card = document.createElement('div');
-        card.className = `clause-card ${clause.severity}`;
-        
-        const dotColor = clause.severity === 'high' ? '≡ƒö┤' : clause.severity === 'medium' ? '≡ƒƒá' : '≡ƒƒó';
-        const badgeColor = clause.severity === 'high' ? 'high' : clause.severity === 'medium' ? 'medium' : 'low';
-        const textLabel = clause.severity === 'high' ? 'HIGH' : clause.severity === 'medium' ? 'MEDIUM' : 'LOW';
-
-        card.innerHTML = `
-          <div class="clause-header">
-            <h4>${dotColor} ${clause.title.split(' (')[0]}</h4>
-            <span class="severity ${badgeColor}">${textLabel}</span>
-          </div>
-          <p>${clause.risk}</p>
-          <div class="clause-tip">
-            ≡ƒÆí AI Suggestion:
-            ${clause.recommendation.split('. ')[0]}.
-          </div>
-        `;
-        
-        card.addEventListener('click', () => openClauseModal(clause));
-        clauseListContainer.appendChild(card);
-      });
-    }
-
-    const summaryParagraph = document.querySelector('.report-section:nth-of-type(3) p');
+    // Dynamic Report Summary
+    const summaryParagraph = document.getElementById('reportSummaryText');
     if (summaryParagraph) {
       summaryParagraph.textContent = contract.summary;
     }
 
-    const suggestionList = document.querySelector('.report-section:nth-of-type(2) ul');
+    // Dynamic Risks Table Population
+    const risksTableBody = document.getElementById('risksTableBody');
+    if (risksTableBody) {
+      risksTableBody.innerHTML = '';
+      
+      contract.clauses.forEach(clause => {
+        const row = document.createElement('tr');
+        row.style.cursor = 'pointer';
+        
+        const badgeColor = clause.severity === 'high' ? 'high' : clause.severity === 'medium' ? 'medium' : 'low';
+        const labelText = clause.severity.toUpperCase();
+
+        row.innerHTML = `
+          <td><strong>${clause.title}</strong></td>
+          <td><span class="severity ${badgeColor}">${labelText}</span></td>
+          <td>${clause.risk}</td>
+          <td>${clause.recommendation}</td>
+        `;
+        
+        // Open modal on click
+        row.addEventListener('click', () => openClauseModal(clause));
+        risksTableBody.appendChild(row);
+      });
+    }
+
+    // Dynamic Key Suggestions List
+    const suggestionList = document.getElementById('reportSuggestionsList');
     if (suggestionList) {
       suggestionList.innerHTML = '';
       contract.clauses.forEach(clause => {
         const li = document.createElement('li');
-        li.textContent = clause.recommendation.split('. ')[0];
+        li.textContent = clause.recommendation;
         suggestionList.appendChild(li);
+      });
+    }
+
+    // Dynamic Questions List
+    const questionsList = document.getElementById('reportQuestionsList');
+    if (questionsList) {
+      questionsList.innerHTML = '';
+      (contract.questions || []).forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        questionsList.appendChild(li);
       });
     }
 
@@ -904,12 +915,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
           .catch(err => {
             console.error("Clipboard copy failed:", err);
             alert("Failed to copy report to clipboard.");
-            copyReportBtn.disabled = false;
-          });
-      });
-    }
-
-    // Download Report PDF Click Event (UI only simulation)
+              // Download Report PDF Click Event (UI only simulation)
     const downloadReportBtn = document.getElementById('downloadReportBtn');
     if (downloadReportBtn) {
       downloadReportBtn.addEventListener('click', () => {
@@ -953,6 +959,16 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
               }
             }
 
+            function sanitizePdfText(text) {
+              if (!text) return "";
+              return text
+                .replace(/🔴/g, "[HIGH RISK]")
+                .replace(/🟠/g, "[WARNING]")
+                .replace(/🟢/g, "[LOW RISK]")
+                .replace(/💡/g, "[AI TIP]")
+                .replace(/[^\x00-\x7F]/g, ""); // strip non-ASCII characters to fix standard font support
+            }
+
             // Header Title
             doc.setFont("helvetica", "bold");
             doc.setFontSize(20);
@@ -966,7 +982,9 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
             doc.setTextColor(107, 114, 128);
             doc.text("Generated: " + new Date().toLocaleDateString(), 15, y);
             y += 6;
-            doc.text("Contract Name: " + contract.name, 15, y);
+            doc.text("Contract Name: " + sanitizePdfText(contract.name), 15, y);
+            y += 6;
+            doc.text("Contract Type: " + sanitizePdfText(contract.contractType || 'Unknown'), 15, y);
             y += 6;
             doc.text("Overall Risk Score: " + contract.riskScore + "% (" + contract.riskLevel + ")", 15, y);
             y += 6;
@@ -986,7 +1004,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
             doc.setFont("helvetica", "normal");
             doc.setFontSize(10);
             doc.setTextColor(55, 65, 81);
-            const summaryLines = doc.splitTextToSize(contract.summary, 180);
+            const summaryLines = doc.splitTextToSize(sanitizePdfText(contract.summary), 180);
             doc.text(summaryLines, 15, y);
             y += (summaryLines.length * 5) + 10;
 
@@ -1001,7 +1019,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
             doc.setFontSize(10);
             doc.setTextColor(55, 65, 81);
             contract.obligations.forEach(ob => {
-              const obStr = "- [" + ob.status + "] " + ob.name;
+              const obStr = "- [" + ob.status + "] " + sanitizePdfText(ob.name);
               const obLines = doc.splitTextToSize(obStr, 175);
               checkPageBound(obLines.length * 5 + 4);
               doc.text(obLines, 20, y);
@@ -1030,22 +1048,41 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
                 doc.setTextColor(22, 163, 74);
               }
               
-              doc.text(clause.title, 15, y);
+              const titleClean = sanitizePdfText(clause.title);
+              doc.text(titleClean, 15, y);
               y += 6;
               
               doc.setFont("helvetica", "normal");
               doc.setFontSize(9.5);
               doc.setTextColor(55, 65, 81);
               
-              const riskText = "Risk: " + clause.risk;
+              const riskText = "Risk: " + sanitizePdfText(clause.risk);
               const riskLines = doc.splitTextToSize(riskText, 180);
               doc.text(riskLines, 15, y);
               y += (riskLines.length * 5) + 1;
               
-              const recText = "Recommendation: " + (clause.recommendation || clause.explanation || "");
+              const recText = "Recommendation: " + sanitizePdfText(clause.recommendation || clause.explanation || "");
               const recLines = doc.splitTextToSize(recText, 180);
               doc.text(recLines, 15, y);
               y += (recLines.length * 5) + 6;
+            });
+
+            // Questions Section
+            checkPageBound(30);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(17, 24, 39);
+            doc.text("4. Questions Before Signing", 15, y);
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(55, 65, 81);
+            (contract.questions || []).forEach(q => {
+              const qStr = "? " + sanitizePdfText(q);
+              const qLines = doc.splitTextToSize(qStr, 180);
+              checkPageBound(qLines.length * 5 + 4);
+              doc.text(qLines, 15, y);
+              y += (qLines.length * 5) + 3;
             });
 
             // Save PDF File

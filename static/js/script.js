@@ -531,25 +531,32 @@
     const confirmDelete = confirm('Are you sure you want to delete this scan history?');
     if (!confirmDelete) return;
 
-    const index = DUMMY_HISTORY.findIndex(x => x.id === id);
-    if (index === -1) return;
-
-    DUMMY_HISTORY.splice(index, 1);
-    
-    if (activeContractId === id) {
-      if (DUMMY_HISTORY.length > 0) {
-        loadContract(DUMMY_HISTORY[0].id);
-      } else {
-        // Return to upload screen
-        activeContractId = '';
-        renderHistory();
-        resetUpload();
-        if (analysisReport) analysisReport.style.display = 'none';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } else {
-      renderHistory();
-    }
+    fetch('/delete/' + id, { method: 'DELETE' })
+      .then(response => {
+        const index = DUMMY_HISTORY.findIndex(x => x.id === id);
+        if (index !== -1) {
+          DUMMY_HISTORY.splice(index, 1);
+        }
+        
+        if (activeContractId === id) {
+          if (DUMMY_HISTORY.length > 0) {
+            loadContract(DUMMY_HISTORY[0].id);
+          } else {
+            // Return to upload screen
+            activeContractId = '';
+            renderHistory();
+            resetUpload();
+            if (analysisReport) analysisReport.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        } else {
+          renderHistory();
+        }
+      })
+      .catch(err => {
+        console.error("Failed to delete contract from database:", err);
+        alert("Failed to delete contract. Please try again.");
+      });
   }
 
   /**
@@ -1056,81 +1063,12 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
             throw new Error("No analysis payload returned from the server.");
           }
 
-          // Construct the new history item with the real AI analysis response
-          const fileName = file.name;
-          const fileExt = fileName.split('.').pop().toLowerCase();
-          const fileType = (fileExt === 'pdf' || fileExt === 'docx') ? fileExt : 'pdf';
-          const newId = 'h_new_' + Date.now();
-          const scanTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          // Prepend the new database record directly to history
+          DUMMY_HISTORY.unshift(analysis);
 
-          // Calculate risk score based on clause severity counts
-          let highCount = 0;
-          let mediumCount = 0;
-          let lowCount = 0;
-
-          const clausesMapped = (analysis.risky_clauses || []).map((clause, idx) => {
-            const riskLower = (clause.risk || 'low').toLowerCase();
-            if (riskLower === 'high') highCount++;
-            else if (riskLower === 'medium') mediumCount++;
-            else lowCount++;
-
-            const emoji = riskLower === 'high' ? '🔴' : riskLower === 'medium' ? '🟠' : '🟢';
-
-            return {
-              id: `clause-new-${idx}`,
-              title: `${emoji} ${clause.category}`,
-              severity: riskLower,
-              text: `This agreement is subject to terms and covenants governing the ${clause.category} category.`,
-              risk: clause.reason,
-              explanation: `A clause related to ${clause.category} was flagged with ${clause.risk} risk rating because: ${clause.reason}.`,
-              recommendation: `Check the exact terms of the ${clause.category} clause. Suggest negotiating or modifying it based on: ${clause.reason}`
-            };
-          });
-
-          // If no risky clauses, provide a default low risk clause
-          if (clausesMapped.length === 0) {
-            clausesMapped.push({
-              id: 'clause-new-none',
-              title: '🟢 No Major Risks Detected',
-              severity: 'low',
-              text: 'This contract contains standard and compliant clauses with no high or medium risks found.',
-              risk: 'No major risks identified by the AI Engine.',
-              explanation: 'All extracted clauses align with standard commercial parameters.',
-              recommendation: 'No immediate redrafting required.'
-            });
-            lowCount = 1;
-          }
-
-          const calculatedScore = Math.min(100, (highCount * 30) + (mediumCount * 15) + (lowCount * 5));
-          let riskLevelStr = 'Low Risk';
-          if (calculatedScore >= 70) riskLevelStr = 'High Risk';
-          else if (calculatedScore >= 30) riskLevelStr = 'Medium Risk';
-
-          const obligationsMapped = (analysis.obligations || []).map(ob => {
-            return { name: ob, status: 'Active', severity: 'success' };
-          });
-          if (obligationsMapped.length === 0) {
-            obligationsMapped.push({ name: 'No explicit obligations extracted.', status: 'Standard', severity: 'success' });
-          }
-
-          const newScanItem = {
-            id: newId,
-            name: fileName,
-            date: 'Today, ' + scanTime,
-            type: fileType,
-            category: 'Today',
-            riskScore: calculatedScore,
-            riskLevel: riskLevelStr,
-            summary: analysis.summary || 'No summary available.',
-            obligations: obligationsMapped,
-            clauses: clausesMapped
-          };
-
-          DUMMY_HISTORY.unshift(newScanItem);
-
-          activeContractId = newId;
+          activeContractId = analysis.id;
           renderHistory();
-          loadContract(newId);
+          loadContract(analysis.id);
 
           // Show Analysis Report
           const analysisReport = document.getElementById('analysis-report');
@@ -1275,13 +1213,38 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
   /**
    * Initialize application layout and load default state
    */
+  /**
+   * Fetch all past analyses from database and populate DUMMY_HISTORY
+   */
+  function loadHistoryFromDatabase(callback) {
+    fetch('/history')
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          DUMMY_HISTORY.length = 0;
+          data.forEach(item => DUMMY_HISTORY.push(item));
+          renderHistory();
+          if (DUMMY_HISTORY.length > 0) {
+            loadContract(DUMMY_HISTORY[0].id);
+          } else {
+            resetUpload();
+            if (analysisReport) analysisReport.style.display = 'none';
+          }
+        }
+        if (callback) callback();
+      })
+      .catch(err => {
+        console.error("Failed to fetch scan history:", err);
+        if (callback) callback();
+      });
+  }
+
   function init() {
     restorePreferences();
     setDarkMode(document.body.classList.contains('dark-mode'));
     bindEvents();
-    renderHistory();
-    loadContract(activeContractId);
     updateHamburgerAria();
+    loadHistoryFromDatabase();
   }
 
   init();

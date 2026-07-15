@@ -8,6 +8,8 @@
 
   /* --- Dynamic Dummy Database --- */
   let activeContractId = 'h1';
+  let activeChatHistory = [];
+  let activeClause = null;
   const DUMMY_HISTORY = [
     {
       id: 'h1',
@@ -199,6 +201,20 @@
   let isMobile = window.innerWidth <= MOBILE_BREAKPOINT;
 
   /**
+   * Enter landing mode - hide sidebar, show full-width homepage
+   */
+  function enterLandingMode() {
+    document.body.classList.add('landing-mode');
+  }
+
+  /**
+   * Exit landing mode - show sidebar, switch to analysis layout
+   */
+  function exitLandingMode() {
+    document.body.classList.remove('landing-mode');
+  }
+
+  /**
    * Check if viewport is mobile-sized
    */
   function checkMobile() {
@@ -294,7 +310,9 @@
    */
   function setDarkMode(isDark) {
     document.body.classList.toggle('dark-mode', isDark);
-    darkModeToggle.setAttribute('aria-checked', String(isDark));
+    if (darkModeToggle) {
+      darkModeToggle.setAttribute('aria-checked', String(isDark));
+    }
     navThemeToggle.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
     navThemeToggle.setAttribute('title', isDark ? 'Light mode' : 'Dark mode');
     localStorage.setItem(STORAGE_KEY_DARK_MODE, String(isDark));
@@ -315,6 +333,7 @@
    */
   function openClauseModal(clause) {
     if (!clause) return;
+    activeClause = clause;
 
     modalTitle.textContent = clause.title;
     modalClauseText.textContent = clause.text;
@@ -326,6 +345,14 @@
     modalSeverityBadge.className = 'clause-modal-badge';
     modalSeverityBadge.classList.add('badge-' + clause.severity);
     modalSeverityBadge.textContent = clause.severity.toUpperCase() + ' RISK';
+
+    // Reset redraft mode
+    const container = clauseDetailModal.querySelector('.clause-modal-container');
+    if (container) container.classList.remove('redraft-mode');
+    if (modalSuggestRedraftBtn) {
+      modalSuggestRedraftBtn.textContent = "Suggest Redraft";
+      modalSuggestRedraftBtn.disabled = false;
+    }
 
     // Show modal overlay
     clauseDetailModal.classList.add('is-visible');
@@ -550,6 +577,7 @@
             renderHistory();
             resetUpload();
             if (analysisReport) analysisReport.style.display = 'none';
+            enterLandingMode();
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         } else {
@@ -574,7 +602,26 @@
    */
   function loadContract(contractId) {
     activeContractId = contractId;
+    exitLandingMode();
     renderHistory();
+    
+    // Reset active chat history for the newly loaded contract
+    activeChatHistory = [];
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+      chatMessages.innerHTML = `
+        <div class="chat-message bot">
+            <div class="chat-message__bubble">
+                Hello! I can answer specific questions about this contract. Try asking:
+                <ul>
+                    <li><em>"What is the governing law of this agreement?"</em></li>
+                    <li><em>"What are my confidentiality obligations?"</em></li>
+                    <li><em>"Is there an auto-renewal clause?"</em></li>
+                </ul>
+            </div>
+        </div>
+      `;
+    }
 
     const contract = DUMMY_HISTORY.find(x => x.id === contractId);
     if (!contract) return;
@@ -720,55 +767,58 @@
     const reportTitle = document.querySelector('.analysis-report h2');
     if (reportTitle) reportTitle.textContent = `Contract Analysis Report: ${contract.name}`;
 
-    const reportScoreText = document.querySelector('.risk-score p');
-    if (reportScoreText) reportScoreText.textContent = `${contract.riskScore}%`;
+    // Populate SaaS Summary Dashboard Grid
+    const dbContractType = document.getElementById('dashboardContractType');
+    if (dbContractType) dbContractType.textContent = contract.contractType || 'Unknown';
 
-    const reportLevelText = document.querySelector('.risk-score span');
-    if (reportLevelText) {
-      reportLevelText.textContent = contract.riskLevel;
-      reportLevelText.className = contract.riskScore > 80 ? 'severity high' : contract.riskScore > 50 ? 'severity medium' : 'severity low';
+    const dbRiskLevel = document.getElementById('dashboardRiskLevel');
+    if (dbRiskLevel) {
+      dbRiskLevel.textContent = contract.riskLevel;
+      dbRiskLevel.className = `dashboard-card__value severity ${contract.riskScore > 80 ? 'high' : contract.riskScore > 50 ? 'medium' : 'low'}`;
     }
 
-    // Count severity occurrences
-    const highCount = contract.clauses.filter(x => x.severity === 'high').length;
-    const medCount = contract.clauses.filter(x => x.severity === 'medium').length;
-    const lowCount = contract.clauses.filter(x => x.severity === 'low').length;
-
-    const scoreSummaryCards = document.querySelectorAll('.risk-card');
-    if (scoreSummaryCards.length === 3) {
-      scoreSummaryCards[0].querySelector('span:not(.risk-dot)').textContent = `${highCount} Clause${highCount !== 1 ? 's' : ''}`;
-      scoreSummaryCards[1].querySelector('span:not(.risk-dot)').textContent = `${medCount} Clause${medCount !== 1 ? 's' : ''}`;
-      scoreSummaryCards[2].querySelector('span:not(.risk-dot)').textContent = `${lowCount} Clause${lowCount !== 1 ? 's' : ''}`;
+    const dbRiskLevelIcon = document.getElementById('dashboardRiskLevelIcon');
+    if (dbRiskLevelIcon) {
+      dbRiskLevelIcon.textContent = contract.riskScore > 80 ? '🔴' : contract.riskScore > 50 ? '🟠' : '🟢';
     }
 
-    // Dynamic Report Detected Clauses Cards
-    const clauseListContainer = document.querySelector('.clause-list');
-    if (clauseListContainer) {
-      clauseListContainer.innerHTML = '';
+    const dbRiskScore = document.getElementById('dashboardRiskScore');
+    if (dbRiskScore) dbRiskScore.textContent = `${contract.riskScore}%`;
+
+    const dbRiskyClauses = document.getElementById('dashboardRiskyClauses');
+    if (dbRiskyClauses) dbRiskyClauses.textContent = contract.clauses.length;
+
+    const dbKeyObligations = document.getElementById('dashboardKeyObligations');
+    if (dbKeyObligations) dbKeyObligations.textContent = contract.obligations.length;
+
+    // Populate Detected Risks Table
+    const tableBody = document.querySelector('#riskyClausesTable tbody');
+    if (tableBody) {
+      tableBody.innerHTML = '';
       
-      contract.clauses.forEach(clause => {
-        const card = document.createElement('div');
-        card.className = `clause-card ${clause.severity}`;
-        
-        const dotColor = clause.severity === 'high' ? '≡ƒö┤' : clause.severity === 'medium' ? '≡ƒƒá' : '≡ƒƒó';
-        const badgeColor = clause.severity === 'high' ? 'high' : clause.severity === 'medium' ? 'medium' : 'low';
-        const textLabel = clause.severity === 'high' ? 'HIGH' : clause.severity === 'medium' ? 'MEDIUM' : 'LOW';
-
-        card.innerHTML = `
-          <div class="clause-header">
-            <h4>${dotColor} ${clause.title.split(' (')[0]}</h4>
-            <span class="severity ${badgeColor}">${textLabel}</span>
-          </div>
-          <p>${clause.risk}</p>
-          <div class="clause-tip">
-            ≡ƒÆí AI Suggestion:
-            ${clause.recommendation.split('. ')[0]}.
-          </div>
-        `;
-        
-        card.addEventListener('click', () => openClauseModal(clause));
-        clauseListContainer.appendChild(card);
-      });
+      if (contract.clauses.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="4" style="text-align: center; color: var(--color-gray-400);">No risky clauses detected.</td>`;
+        tableBody.appendChild(tr);
+      } else {
+        contract.clauses.forEach(clause => {
+          const tr = document.createElement('tr');
+          tr.style.cursor = 'pointer';
+          
+          const severityLabel = clause.severity ? clause.severity.toUpperCase() : 'Not Available';
+          const badgeClass = clause.severity ? clause.severity.toLowerCase() : 'low';
+          
+          tr.innerHTML = `
+            <td><strong>${clause.title.split(' (')[0]}</strong></td>
+            <td><span class="severity-badge ${badgeClass}">${severityLabel}</span></td>
+            <td>${clause.risk}</td>
+            <td>${clause.recommendation.split('. ')[0]}.</td>
+          `;
+          
+          tr.addEventListener('click', () => openClauseModal(clause));
+          tableBody.appendChild(tr);
+        });
+      }
     }
 
     const summaryParagraph = document.querySelector('.report-section:nth-of-type(3) p');
@@ -802,16 +852,20 @@
   function bindEvents() {
     hamburgerBtn.addEventListener('click', toggleSidebar);
     sidebarCollapseBtn.addEventListener('click', toggleDesktopSidebar);
-    darkModeToggle.addEventListener('click', toggleDarkMode);
-    navThemeToggle.addEventListener('click', toggleDarkMode);
-    notificationBtn.addEventListener('click', () => {
-      notificationBtn.classList.add('is-active');
-      setTimeout(() => notificationBtn.classList.remove('is-active'), 200);
-    });
-    profileBtn.addEventListener('click', () => {
-      const isExpanded = profileBtn.getAttribute('aria-expanded') === 'true';
-      profileBtn.setAttribute('aria-expanded', String(!isExpanded));
-    });
+    if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
+    if (navThemeToggle) navThemeToggle.addEventListener('click', toggleDarkMode);
+    if (notificationBtn) {
+      notificationBtn.addEventListener('click', () => {
+        notificationBtn.classList.add('is-active');
+        setTimeout(() => notificationBtn.classList.remove('is-active'), 200);
+      });
+    }
+    if (profileBtn) {
+      profileBtn.addEventListener('click', () => {
+        const isExpanded = profileBtn.getAttribute('aria-expanded') === 'true';
+        profileBtn.setAttribute('aria-expanded', String(!isExpanded));
+      });
+    }
 
     sidebarOverlay.addEventListener('click', closeMobileSidebar);
     searchInput.addEventListener('input', filterContracts);
@@ -823,15 +877,13 @@
         renderHistory();
         resetUpload();
         if (analysisReport) analysisReport.style.display = 'none';
+        enterLandingMode();
 
         if (isMobile) {
           closeMobileSidebar();
         }
 
-        const uploadSection = document.getElementById('uploadSection');
-        if (uploadSection) {
-          uploadSection.scrollIntoView({ behavior: 'smooth' });
-        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     }
 
@@ -848,10 +900,81 @@
 
     if (modalSuggestRedraftBtn) {
       modalSuggestRedraftBtn.addEventListener('click', () => {
-        alert('Re-drafting suggestions generated by AI have been saved. Check the main documents panel.');
-        closeClauseModal();
+        const container = clauseDetailModal.querySelector('.clause-modal-container');
+        if (!container) return;
+        
+        const isRedraftMode = container.classList.toggle('redraft-mode');
+        
+        if (isRedraftMode) {
+          modalSuggestRedraftBtn.textContent = "Back to Analysis";
+          
+          // Clear text with loader
+          const consText = document.getElementById('redraftConservativeText');
+          const neutText = document.getElementById('redraftNeutralText');
+          const aggText = document.getElementById('redraftAggressiveText');
+          
+          if (consText) consText.textContent = "Generating conservative alternative...";
+          if (neutText) neutText.textContent = "Generating neutral compromise...";
+          if (aggText) aggText.textContent = "Generating aggressive stance...";
+          
+          // Call API
+          fetch('/redraft', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              clause_text: activeClause ? activeClause.text : '',
+              risk_reason: activeClause ? activeClause.risk : ''
+            })
+          })
+          .then(response => {
+            if (!response.ok) {
+              return response.json().then(err => { throw new Error(err.error || "Server error"); });
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (consText) consText.textContent = data.conservative || "Failed to generate revision.";
+            if (neutText) neutText.textContent = data.neutral || "Failed to generate revision.";
+            if (aggText) aggText.textContent = data.aggressive || "Failed to generate revision.";
+          })
+          .catch(err => {
+            if (consText) consText.textContent = `⚠️ Error: ${err.message}`;
+            if (neutText) neutText.textContent = `⚠️ Error: ${err.message}`;
+            if (aggText) aggText.textContent = `⚠️ Error: ${err.message}`;
+          });
+        } else {
+          modalSuggestRedraftBtn.textContent = "Suggest Redraft";
+        }
       });
     }
+
+    // Copy Redraft suggestions inside modal via event delegation
+    document.addEventListener('click', (e) => {
+      const copyBtn = e.target.closest('.redraft-card__copy');
+      if (!copyBtn) return;
+      
+      const targetId = copyBtn.getAttribute('data-target');
+      const textElement = document.getElementById(targetId);
+      if (!textElement) return;
+      
+      const textToCopy = textElement.textContent;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          const oldText = copyBtn.textContent;
+          copyBtn.textContent = "Copied!";
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = oldText;
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        })
+        .catch(err => {
+          console.error("Failed to copy redraft: ", err);
+          alert("Failed to copy redraft text.");
+        });
+    });
 
     // Retry Analysis Event
     if (retryAnalysisBtn) {
@@ -1085,6 +1208,57 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
 
     bindMockEvents();
     bindUploadEvents();
+
+    // Chat Interface Bindings
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    
+    if (chatSendBtn && chatInput) {
+      const sendChat = () => {
+        const text = chatInput.value.trim();
+        if (!text) return;
+        
+        appendChatMessage("user", text);
+        chatInput.value = '';
+        
+        const loadingBubble = appendChatMessage("bot", "Thinking...", true);
+        
+        fetch('/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contract_id: activeContractId,
+            question: text,
+            chat_history: activeChatHistory
+          })
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || "Server error"); });
+          }
+          return response.json();
+        })
+        .then(data => {
+          loadingBubble.remove();
+          appendChatMessage("bot", data.answer);
+          activeChatHistory.push({ sender: 'user', text: text });
+          activeChatHistory.push({ sender: 'bot', text: data.answer });
+        })
+        .catch(err => {
+          loadingBubble.remove();
+          appendChatMessage("bot", `⚠️ Error: ${err.message}`);
+        });
+      };
+      
+      chatSendBtn.addEventListener('click', sendChat);
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          sendChat();
+        }
+      });
+    }
   }
 
   /**
@@ -1248,6 +1422,252 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         });
       });
     }
+
+    // Tab Switching logic
+    const tabSingle = document.getElementById('tabSingle');
+    const tabCompare = document.getElementById('tabCompare');
+    const singleUploadContainer = document.getElementById('singleUploadContainer');
+    const compareUploadContainer = document.getElementById('compareUploadContainer');
+    
+    if (tabSingle && tabCompare) {
+      tabSingle.addEventListener('click', () => {
+        tabSingle.classList.add('active');
+        tabCompare.classList.remove('active');
+        singleUploadContainer.style.display = 'block';
+        compareUploadContainer.style.display = 'none';
+        
+        // Hide comparison report, show single analysis if active
+        const compareReport = document.getElementById('compare-report');
+        if (compareReport) compareReport.style.display = 'none';
+        if (activeContractId) {
+          const analysisReport = document.getElementById('analysis-report');
+          if (analysisReport) analysisReport.style.display = 'block';
+        }
+      });
+      
+      tabCompare.addEventListener('click', () => {
+        tabCompare.classList.add('active');
+        tabSingle.classList.remove('active');
+        singleUploadContainer.style.display = 'none';
+        compareUploadContainer.style.display = 'block';
+        
+        // Hide single report, show comparison if active
+        const analysisReport = document.getElementById('analysis-report');
+        if (analysisReport) analysisReport.style.display = 'none';
+        const compareReport = document.getElementById('compare-report');
+        if (compareReport && compareReport.getAttribute('data-active') === 'true') {
+          compareReport.style.display = 'block';
+        }
+      });
+    }
+
+    // Compare uploads logic
+    const draftFileInput = document.getElementById('draftFileInput');
+    const playbookFileInput = document.getElementById('playbookFileInput');
+    const draftDropzone = document.getElementById('draftDropzone');
+    const playbookDropzone = document.getElementById('playbookDropzone');
+    const draftStatusText = document.getElementById('draftStatusText');
+    const playbookStatusText = document.getElementById('playbookStatusText');
+    const startCompareBtn = document.getElementById('startCompareBtn');
+
+    if (draftDropzone && draftFileInput) {
+      draftDropzone.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'BUTTON') {
+          draftFileInput.click();
+        }
+      });
+      draftFileInput.addEventListener('change', () => {
+        if (draftFileInput.files[0]) {
+          draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${draftFileInput.files[0].name}`;
+          checkCompareReady();
+        }
+      });
+      ['dragenter', 'dragover'].forEach(name => {
+        draftDropzone.addEventListener(name, (e) => {
+          e.preventDefault(); e.stopPropagation();
+          draftDropzone.classList.add('is-dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        draftDropzone.addEventListener(name, (e) => {
+          e.preventDefault(); e.stopPropagation();
+          draftDropzone.classList.remove('is-dragover');
+        });
+      });
+      draftDropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          draftFileInput.files = files;
+          draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${files[0].name}`;
+          checkCompareReady();
+        }
+      });
+    }
+
+    if (playbookDropzone && playbookFileInput) {
+      playbookDropzone.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'LABEL' && e.target.tagName !== 'BUTTON') {
+          playbookFileInput.click();
+        }
+      });
+      playbookFileInput.addEventListener('change', () => {
+        if (playbookFileInput.files[0]) {
+          playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${playbookFileInput.files[0].name}`;
+          checkCompareReady();
+        }
+      });
+      ['dragenter', 'dragover'].forEach(name => {
+        playbookDropzone.addEventListener(name, (e) => {
+          e.preventDefault(); e.stopPropagation();
+          playbookDropzone.classList.add('is-dragover');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        playbookDropzone.addEventListener(name, (e) => {
+          e.preventDefault(); e.stopPropagation();
+          playbookDropzone.classList.remove('is-dragover');
+        });
+      });
+      playbookDropzone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          playbookFileInput.files = files;
+          playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${files[0].name}`;
+          checkCompareReady();
+        }
+      });
+    }
+
+    function checkCompareReady() {
+      if (draftFileInput.files[0] && playbookFileInput.files[0]) {
+        startCompareBtn.removeAttribute('disabled');
+      } else {
+        startCompareBtn.setAttribute('disabled', 'true');
+      }
+    }
+
+    if (startCompareBtn) {
+      startCompareBtn.addEventListener('click', () => {
+        const draftFile = draftFileInput.files[0];
+        const playbookFile = playbookFileInput.files[0];
+        if (!draftFile || !playbookFile) return;
+        
+        startCompareBtn.disabled = true;
+        const btnText = startCompareBtn.querySelector('span');
+        const oldBtnText = btnText ? btnText.textContent : 'Compare';
+        if (btnText) btnText.textContent = 'Comparing...';
+        
+        if (analyzingState) {
+          const loadingText = analyzingState.querySelector('.analyzing-state__text');
+          if (loadingText) loadingText.textContent = "Comparing Documents with Playbook...";
+          analyzingState.style.display = 'flex';
+        }
+        
+        hideErrorPanel();
+        
+        const formData = new FormData();
+        formData.append('draft', draftFile);
+        formData.append('template', playbookFile);
+        
+        fetch('/compare', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (!response.ok) {
+            return response.json().then(data => {
+              throw new Error(data.error || 'Server error occurred during comparison.');
+            });
+          }
+          return response.json();
+        })
+        .then(data => {
+          if (analyzingState) analyzingState.style.display = 'none';
+          
+          // Render comparison report
+          const compareReport = document.getElementById('compare-report');
+          const summaryText = document.getElementById('compareSummaryText');
+          const matchesList = document.getElementById('compareMatchesList');
+          const deviationsBody = document.getElementById('compareDeviationsTableBody');
+          
+          if (summaryText) summaryText.textContent = data.summary || 'No differences identified.';
+          
+          if (matchesList) {
+            matchesList.innerHTML = '';
+            const matches = data.matches || [];
+            if (matches.length === 0) {
+              matchesList.innerHTML = '<li>No exact playbook matches identified.</li>';
+            } else {
+              matches.forEach(m => {
+                const li = document.createElement('li');
+                li.textContent = m;
+                matchesList.appendChild(li);
+              });
+            }
+          }
+          
+          if (deviationsBody) {
+            deviationsBody.innerHTML = '';
+            const deviations = data.deviations || [];
+            if (deviations.length === 0) {
+              deviationsBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-gray-500);">No deviations detected. Contract aligns with playbook standard.</td></tr>';
+            } else {
+              deviations.forEach(dev => {
+                const tr = document.createElement('tr');
+                
+                const tdCat = document.createElement('td');
+                tdCat.innerHTML = `<strong>${dev.clause}</strong><br><small style="color: var(--color-gray-500); font-family: var(--font-mono);">${dev.location || 'Unknown location'}</small>`;
+                
+                const tdOriginal = document.createElement('td');
+                tdOriginal.textContent = dev.original || 'Missing';
+                
+                const tdTemplate = document.createElement('td');
+                tdTemplate.textContent = dev.template || 'Standard template wording';
+                
+                const tdRisk = document.createElement('td');
+                tdRisk.innerHTML = `<span style="color: var(--color-accent); font-weight: 600;">Risk:</span> ${dev.risk}<br><br><span style="color: #22c55e; font-weight: 600;">Recommendation:</span> ${dev.recommendation}`;
+                
+                tr.appendChild(tdCat);
+                tr.appendChild(tdOriginal);
+                tr.appendChild(tdTemplate);
+                tr.appendChild(tdRisk);
+                
+                deviationsBody.appendChild(tr);
+              });
+            }
+          }
+          
+          if (compareReport) {
+            compareReport.style.display = 'block';
+            compareReport.setAttribute('data-active', 'true');
+            compareReport.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          
+          // Hide single report if visible
+          const singleReport = document.getElementById('analysis-report');
+          if (singleReport) singleReport.style.display = 'none';
+          
+          if (btnText) btnText.textContent = oldBtnText;
+          startCompareBtn.disabled = false;
+          
+          // Reset compare fields
+          draftFileInput.value = '';
+          playbookFileInput.value = '';
+          draftStatusText.textContent = "Drag Draft file here, or click to browse";
+          playbookStatusText.textContent = "Drag Playbook here, or click to browse";
+          startCompareBtn.setAttribute('disabled', 'true');
+        })
+        .catch(err => {
+          console.error("Comparison failed:", err);
+          showErrorPanel(err.message);
+          if (btnText) btnText.textContent = oldBtnText;
+          startCompareBtn.disabled = false;
+          if (analyzingState) {
+            analyzingState.style.display = 'none';
+          }
+        });
+      });
+    }
   }
   /**
    * Validate file size/type and update UI states
@@ -1389,6 +1809,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
           } else {
             resetUpload();
             if (analysisReport) analysisReport.style.display = 'none';
+            enterLandingMode();
           }
         }
         if (callback) callback();
@@ -1399,9 +1820,39 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
       });
   }
 
+  function appendChatMessage(sender, text, isLoading = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return null;
+    
+    const div = document.createElement('div');
+    div.className = `chat-message ${sender}`;
+    if (isLoading) div.classList.add('loading');
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-message__bubble';
+    
+    if (sender === 'bot' && !isLoading) {
+      let formattedText = text
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\* ([^*]+)/g, '<li>$1</li>');
+      bubble.innerHTML = formattedText;
+    } else {
+      bubble.textContent = text;
+    }
+    
+    div.appendChild(bubble);
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return div;
+  }
+
   function init() {
     restorePreferences();
     setDarkMode(document.body.classList.contains('dark-mode'));
+    // Start in landing mode by default; exitLandingMode is called by loadContract if history exists
+    enterLandingMode();
     bindEvents();
     updateHamburgerAria();
     loadHistoryFromDatabase();

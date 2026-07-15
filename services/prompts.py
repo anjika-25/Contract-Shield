@@ -50,3 +50,44 @@ Your response must be a single JSON object with the following structure:
 
 Ensure all JSON keys match this schema exactly.
 """
+
+COMPARE_SYSTEM_PROMPT = """You are an expert contract comparison attorney.
+Your goal is to compare a Draft Contract against a standard Company Template/Playbook.
+Identify key differences, omissions in the draft, and aggressive terms that deviate from the template.
+Return your response ONLY as a valid JSON object. Do not wrap it in markdown code blocks.
+"""
+
+COMPARE_USER_PROMPT_TEMPLATE = """Compare the following Draft Contract against the standard Company Playbook/Template.
+Identify:
+1. Deviations (clauses in the draft that are riskier than the template).
+2. Matches (clauses that align with the template standard).
+3. Omissions (key clauses in the template that are missing from the draft).
+
+Return a single JSON object with the following structure:
+{{
+  "summary": "Overall comparison summary...",
+  "matches": [
+    "Clause name (e.g. Governing Law aligns with the standard New York jurisdiction)..."
+  ],
+  "deviations": [
+    {{
+      "clause": "Clause category (e.g. Liability Cap)",
+      "location": "Sec. 5 / Paragraph 2 (in the draft)",
+      "original": "Original text in the draft...",
+      "template": "Standard text in the playbook...",
+      "risk": "Why this deviation represents a risk...",
+      "recommendation": "Suggested revision to negotiate..."
+    }}
+  ]
+}}
+
+Draft Contract Text:
+--- DRAFT START ---
+{draft_text}
+--- DRAFT END ---
+
+Company Template/Playbook Text:
+--- TEMPLATE START ---
+{template_text}
+--- TEMPLATE END ---
+"""

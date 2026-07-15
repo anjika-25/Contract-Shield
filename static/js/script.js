@@ -850,6 +850,52 @@
       });
     }
 
+    // Copy Analysis Report to Clipboard Click Event
+    const copyReportBtn = document.getElementById('copyReportBtn');
+    if (copyReportBtn) {
+      copyReportBtn.addEventListener('click', () => {
+        const contract = DUMMY_HISTORY.find(x => x.id === activeContractId) || DUMMY_HISTORY[0];
+        if (!contract) return;
+
+        copyReportBtn.disabled = true;
+        const btnText = copyReportBtn.querySelector('.report-download-btn__text');
+        const oldText = btnText ? btnText.textContent : 'Copy Results';
+
+        const reportText = `--------------------------------------------
+CONTRACTSHIELD AI ANALYSIS REPORT
+--------------------------------------------
+Generated on: ${new Date().toLocaleDateString()}
+Contract Name: ${contract.name}
+Overall Risk Score: ${contract.riskScore}% (${contract.riskLevel})
+
+Summary:
+${contract.summary}
+
+Obligations Checklist:
+${contract.obligations.map(ob => `- [${ob.status}] ${ob.name}`).join('\n')}
+
+Detected Risk Clauses:
+${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\n  - Recommended Action: ${clause.recommendation}`).join('\n')}
+`;
+
+        navigator.clipboard.writeText(reportText)
+          .then(() => {
+            if (btnText) btnText.textContent = 'Copied to Clipboard!';
+            copyReportBtn.classList.add('is-success');
+            setTimeout(() => {
+              if (btnText) btnText.textContent = oldText;
+              copyReportBtn.classList.remove('is-success');
+              copyReportBtn.disabled = false;
+            }, 2000);
+          })
+          .catch(err => {
+            console.error("Clipboard copy failed:", err);
+            alert("Failed to copy report to clipboard.");
+            copyReportBtn.disabled = false;
+          });
+      });
+    }
+
     // Download Report PDF Click Event (UI only simulation)
     const downloadReportBtn = document.getElementById('downloadReportBtn');
     if (downloadReportBtn) {

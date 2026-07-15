@@ -3321,3 +3321,17 @@ body.dark-mode .how-step p {
     background: linear-gradient(90deg, transparent, var(--border-color), transparent);
   }
 }
+
+/* Report Header Actions */
+.analysis-report__actions {
+  display: flex;
+  gap: 10px;
+}
+@media (max-width: 768px) {
+  .analysis-report__actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+

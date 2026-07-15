@@ -520,12 +520,21 @@
 
   <div class="analysis-report__header">
     <h2>Contract Analysis Report</h2>
-    <button class="report-download-btn" id="downloadReportBtn" type="button">
-      <svg class="report-download-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
-        <path d="M12 15V3M12 15L8 11M12 15L16 11M5 17H19V19H5V17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="report-download-btn__text">Download Report PDF</span>
-    </button>
+    <div class="analysis-report__actions">
+      <button class="report-download-btn" id="copyReportBtn" type="button">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </svg>
+        <span class="report-download-btn__text">Copy Results</span>
+      </button>
+      <button class="report-download-btn" id="downloadReportBtn" type="button">
+        <svg class="report-download-btn__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18">
+          <path d="M12 15V3M12 15L8 11M12 15L16 11M5 17H19V19H5V17Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="report-download-btn__text">Download Report PDF</span>
+      </button>
+    </div>
   </div>
 
   <div class="report-card">

@@ -185,6 +185,9 @@
   const uploadSuccess = document.getElementById('uploadSuccess');
   const analyzingState = document.getElementById('analyzingState');
   const analysisReport = document.getElementById('analysis-report');
+  const errorPanel = document.getElementById('errorPanel');
+  const errorPanelMessage = document.getElementById('errorPanelMessage');
+  const retryAnalysisBtn = document.getElementById('retryAnalysisBtn');
 
   /* --- Constants --- */
   const MOBILE_BREAKPOINT = 768;
@@ -850,6 +853,16 @@
       });
     }
 
+    // Retry Analysis Event
+    if (retryAnalysisBtn) {
+      retryAnalysisBtn.addEventListener('click', () => {
+        hideErrorPanel();
+        if (submitAnalysisBtn) {
+          submitAnalysisBtn.click();
+        }
+      });
+    }
+
     // Copy Analysis Report to Clipboard Click Event
     const copyReportBtn = document.getElementById('copyReportBtn');
     if (copyReportBtn) {
@@ -927,32 +940,120 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
           btnText.textContent = 'Report generated successfully!';
           downloadReportBtn.classList.add('is-success');
 
-          // Trigger dynamic mock download text file renamed to .pdf
-          const reportContent = `--------------------------------------------
-CONTRACTSHIELD AI ANALYSIS REPORT
---------------------------------------------
-Generated on: ${new Date().toLocaleDateString()}
-Contract Name: ${contract.name}
-Overall Risk Score: ${contract.riskScore}% (${contract.riskLevel})
+          // Generate true binary PDF using jsPDF
+          try {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            let y = 20;
 
-Summary:
-${contract.summary}
+            function checkPageBound(neededHeight) {
+              if (y + neededHeight > 280) {
+                doc.addPage();
+                y = 20;
+              }
+            }
 
-Obligations Checklist:
-${contract.obligations.map(ob => `- [${ob.status}] ${ob.name}`).join('\n')}
+            // Header Title
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(20);
+            doc.setTextColor(17, 24, 39);
+            doc.text("LegalLens AI - Contract Analysis Report", 15, y);
+            y += 8;
 
-Detected Risk Clauses:
-${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\n  - Recommended Action: ${clause.recommendation}`).join('\n')}
-`;
-          const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = contract.name.replace(/\.[^/.]+$/, "") + "_Analysis_Report.pdf";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+            // Metadata
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(107, 114, 128);
+            doc.text("Generated: " + new Date().toLocaleDateString(), 15, y);
+            y += 6;
+            doc.text("Contract Name: " + contract.name, 15, y);
+            y += 6;
+            doc.text("Overall Risk Score: " + contract.riskScore + "% (" + contract.riskLevel + ")", 15, y);
+            y += 6;
+
+            // Divider Line
+            doc.setDrawColor(229, 231, 235);
+            doc.line(15, y, 195, y);
+            y += 10;
+
+            // Summary Section
+            checkPageBound(30);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(17, 24, 39);
+            doc.text("1. Executive Summary", 15, y);
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(55, 65, 81);
+            const summaryLines = doc.splitTextToSize(contract.summary, 180);
+            doc.text(summaryLines, 15, y);
+            y += (summaryLines.length * 5) + 10;
+
+            // Obligations Section
+            checkPageBound(30);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(17, 24, 39);
+            doc.text("2. Key Obligations Checklist", 15, y);
+            y += 8;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.setTextColor(55, 65, 81);
+            contract.obligations.forEach(ob => {
+              const obStr = "- [" + ob.status + "] " + ob.name;
+              const obLines = doc.splitTextToSize(obStr, 175);
+              checkPageBound(obLines.length * 5 + 4);
+              doc.text(obLines, 20, y);
+              y += (obLines.length * 5) + 2;
+            });
+            y += 8;
+
+            // Risks Section
+            checkPageBound(30);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(17, 24, 39);
+            doc.text("3. Detected Risks & Recommendations", 15, y);
+            y += 8;
+            contract.clauses.forEach(clause => {
+              checkPageBound(35);
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(10.5);
+              
+              // Set color based on severity
+              if (clause.severity === 'high') {
+                doc.setTextColor(185, 28, 28);
+              } else if (clause.severity === 'medium') {
+                doc.setTextColor(217, 119, 6);
+              } else {
+                doc.setTextColor(22, 163, 74);
+              }
+              
+              doc.text(clause.title, 15, y);
+              y += 6;
+              
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(9.5);
+              doc.setTextColor(55, 65, 81);
+              
+              const riskText = "Risk: " + clause.risk;
+              const riskLines = doc.splitTextToSize(riskText, 180);
+              doc.text(riskLines, 15, y);
+              y += (riskLines.length * 5) + 1;
+              
+              const recText = "Recommendation: " + (clause.recommendation || clause.explanation || "");
+              const recLines = doc.splitTextToSize(recText, 180);
+              doc.text(recLines, 15, y);
+              y += (recLines.length * 5) + 6;
+            });
+
+            // Save PDF File
+            doc.save(contract.name.replace(/\.[^/.]+$/, "") + "_Analysis_Report.pdf");
+          } catch (pdfErr) {
+            console.error("PDF generation error:", pdfErr);
+            alert("An error occurred while generating the PDF document.");
+          }
 
           // Reset button back after 3 seconds
           setTimeout(() => {
@@ -1083,6 +1184,8 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
           analyzingState.style.display = 'flex';
         }
 
+        hideErrorPanel();
+
         const formData = new FormData();
         formData.append('file', file);
 
@@ -1136,7 +1239,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         })
         .catch(err => {
           console.error("Analysis upload failed:", err);
-          alert("Analysis failed: " + err.message);
+          showErrorPanel(err.message);
           btnText.textContent = 'Analyze Contract';
           submitAnalysisBtn.disabled = false;
           if (analyzingState) {
@@ -1194,16 +1297,27 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         }
       }, 100);
     }
+  }  function showErrorPanel(message) {
+    if (errorPanel && errorPanelMessage) {
+      errorPanelMessage.textContent = message;
+      errorPanel.style.display = 'flex';
+      errorPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
-  /**
-   * Reset file input and swap dropzone states back
-   */
+  function hideErrorPanel() {
+    if (errorPanel) {
+      errorPanel.style.display = 'none';
+    }
+  }
+
   function resetUpload() {
+    hideErrorPanel();
     if (contractFileInput) contractFileInput.value = '';
     if (uploadedFileName) uploadedFileName.textContent = '';
     if (uploadedFileSize) uploadedFileSize.textContent = '';
     if (uploadDropzone) uploadDropzone.style.display = 'flex';
+    if (uploadStatusPanel) uploadStatusPanel.style.display = 'none';
     if (uploadStatusPanel) uploadStatusPanel.style.display = 'none';
     if (uploadProgress) {
       uploadProgress.style.display = 'none';

@@ -29,21 +29,10 @@ def init_db():
             risk_level TEXT NOT NULL,
             summary TEXT NOT NULL,
             obligations TEXT NOT NULL,
-            clauses TEXT NOT NULL,
-            contract_type TEXT NOT NULL DEFAULT 'Unknown'
+            clauses TEXT NOT NULL
         )
     """)
     conn.commit()
-    
-    # Run migration in case column contract_type doesn't exist in user's active database
-    try:
-        cursor.execute("ALTER TABLE contracts ADD COLUMN contract_type TEXT NOT NULL DEFAULT 'Unknown'")
-        conn.commit()
-        logger.info("Database migration: successfully added contract_type column to contracts table.")
-    except sqlite3.OperationalError:
-        # Column already exists, swallow the error safely
-        pass
-        
     conn.close()
 
 def insert_contract(contract_data: Dict[str, Any]) -> None:
@@ -56,8 +45,8 @@ def insert_contract(contract_data: Dict[str, Any]) -> None:
     clauses_json = json.dumps(contract_data.get("clauses", []))
     
     cursor.execute("""
-        INSERT INTO contracts (id, name, date, type, risk_score, risk_level, summary, obligations, clauses, contract_type)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO contracts (id, name, date, type, risk_score, risk_level, summary, obligations, clauses)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         contract_data["id"],
         contract_data["name"],
@@ -67,8 +56,7 @@ def insert_contract(contract_data: Dict[str, Any]) -> None:
         contract_data["riskLevel"],
         contract_data["summary"],
         obligations_json,
-        clauses_json,
-        contract_data.get("contractType", "Unknown")
+        clauses_json
     ))
     conn.commit()
     conn.close()
@@ -84,12 +72,6 @@ def get_all_contracts() -> List[Dict[str, Any]]:
     
     contracts = []
     for row in rows:
-        # Safe column resolution for old database rows that might not have contract_type loaded
-        try:
-            contract_type = row["contract_type"]
-        except (IndexError, KeyError):
-            contract_type = "Unknown"
-            
         contracts.append({
             "id": row["id"],
             "name": row["name"],
@@ -99,8 +81,7 @@ def get_all_contracts() -> List[Dict[str, Any]]:
             "riskLevel": row["risk_level"],
             "summary": row["summary"],
             "obligations": json.loads(row["obligations"]),
-            "clauses": json.loads(row["clauses"]),
-            "contractType": contract_type
+            "clauses": json.loads(row["clauses"])
         })
     # Sort order is reversed insertion order (newest first)
     return list(reversed(contracts))

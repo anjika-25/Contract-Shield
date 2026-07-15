@@ -39,8 +39,7 @@ Your response must be a single JSON object with the following structure:
     {{
       "category": "One of: Termination, Auto Renewal, Liability, Arbitration, Payment, Confidentiality, Indemnity, IP Rights, Force Majeure, Jurisdiction, Data Privacy",
       "risk": "Low, Medium, or High",
-      "reason": "Clear explanation of why this clause poses a risk based on the text.",
-      "location": "The clause number, section, or paragraph indicator where this risk was detected (e.g., 'Sec. 6', 'Clause 4', 'Paragraph 2'). If not numbered, specify a short section title."
+      "reason": "Clear explanation of why this clause poses a risk based on the text."
     }}
   ],
   "questions": [

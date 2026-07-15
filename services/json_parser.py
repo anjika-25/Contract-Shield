@@ -102,9 +102,7 @@ def validate_analysis_schema(data: Any) -> Tuple[bool, Optional[str]]:
         if not isinstance(clause, dict):
             return False, f"risky_clauses[{idx}] is not an object."
             
-        clause.setdefault("location", "Unknown")
-            
-        clause_keys = {"category", "risk", "reason", "location"}
+        clause_keys = {"category", "risk", "reason"}
         missing_clause_keys = clause_keys - clause.keys()
         if missing_clause_keys:
             return False, f"risky_clauses[{idx}] missing keys: {', '.join(missing_clause_keys)}"

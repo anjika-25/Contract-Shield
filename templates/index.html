@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ContractShield AI - Understand legal contracts before you sign. AI-powered contract analysis for ContractVerse.">
-  <title>ContractShield AI | ContractVerse</title>
+  <title>ContractShield AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -329,54 +329,53 @@
                     </svg>
                   </button>
                 </div>
-              </div>
 
-              <!-- Upload Progress -->
-              <div class="upload-progress" id="uploadProgress">
-                <div class="upload-progress__header">
-                  <span>Uploading...</span>
-                  <span id="uploadPercent">0%</span>
+                <!-- Upload Progress -->
+                <div class="upload-progress" id="uploadProgress">
+                  <div class="upload-progress__header">
+                    <span>Uploading...</span>
+                    <span id="uploadPercent">0%</span>
+                  </div>
+                  <div class="upload-progress__bar">
+                    <div class="upload-progress__fill" id="uploadProgressFill"></div>
+                  </div>
                 </div>
-                <div class="upload-progress__bar">
-                  <div class="upload-progress__fill" id="uploadProgressFill"></div>
-                </div>
-              </div>
 
-              <!-- Upload Success -->
-              <div class="upload-success" id="uploadSuccess">
-                ✓ Contract uploaded successfully
-              </div>
-
-              <!-- AI Analysis Loading -->
-              <div class="analyzing-state" id="analyzingState">
-                <div class="ai-loader"></div>
-                <div class="analyzing-state__text">
-                  Analyzing Contract...
+                <!-- Upload Success -->
+                <div class="upload-success" id="uploadSuccess">
+                  ✓ Contract uploaded successfully
                 </div>
-                <small>
-                  AI is reviewing clauses and identifying risks
-                </small>
-              </div>
 
-              <!-- Error Panel (initially hidden) -->
-              <div class="error-panel" id="errorPanel" style="display: none;">
-                <div class="error-panel__header">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="error-panel__icon" style="color: #ef4444; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
-                    <path d="M12 9V13M12 17H12.01M5.07 19H18.93C20.47 19 21.43 17.33 20.66 16L13.73 4C12.96 2.67 11.04 2.67 10.27 4L3.34 16C2.57 17.33 3.53 19 5.07 19Z"/>
-                  </svg>
-                  <h4 class="error-panel__title">Analysis Failed</h4>
+                <!-- AI Analysis Loading -->
+                <div class="analyzing-state" id="analyzingState">
+                  <div class="ai-loader"></div>
+                  <div class="analyzing-state__text">
+                    Analyzing Contract...
+                  </div>
+                  <small>
+                    AI is reviewing clauses and identifying risks
+                  </small>
                 </div>
-                <p class="error-panel__message" id="errorPanelMessage">
-                  An internal system ingestion failure occurred.
-                </p>
-                <button class="btn btn--secondary error-panel__retry-btn" id="retryAnalysisBtn" type="button" style="margin-top: 10px;">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px;">
-                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                  </svg>
-                  Retry Analysis
-                </button>
+
+                <!-- Error Panel (initially hidden) -->
+                <div class="error-panel" id="errorPanel" style="display: none;">
+                  <div class="error-panel__header">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="error-panel__icon" style="color: #ef4444; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
+                      <path d="M12 9V13M12 17H12.01M5.07 19H18.93C20.47 19 21.43 17.33 20.66 16L13.73 4C12.96 2.67 11.04 2.67 10.27 4L3.34 16C2.57 17.33 3.53 19 5.07 19Z"/>
+                    </svg>
+                    <h4 class="error-panel__title">Analysis Failed</h4>
+                  </div>
+                  <p class="error-panel__message" id="errorPanelMessage">
+                    An internal system ingestion failure occurred.
+                  </p>
+                  <button class="btn btn--secondary error-panel__retry-btn" id="retryAnalysisBtn" type="button" style="margin-top: 10px;">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px;">
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                    </svg>
+                    Retry Analysis
+                  </button>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       </section>

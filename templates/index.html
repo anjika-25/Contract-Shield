@@ -10,155 +10,70 @@
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="dark-mode">
   <div class="app-layout" id="appLayout">
 
     <!-- Sidebar overlay (mobile) -->
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
-    <!-- Left Sidebar -->
-    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
-      <div class="sidebar__header">
-        <a href="#" class="sidebar__logo" aria-label="ContractShield AI home">
-          <span class="sidebar__logo-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L4 6V12C4 17.55 7.84 22.74 12 24C16.16 22.74 20 17.55 20 12V6L12 2Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
-              <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="sidebar__logo-text">ContractShield AI</span>
-        </a>
-        <button class="sidebar__collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Collapse sidebar" title="Collapse sidebar">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="sidebar__body">
-        <button class="btn btn--primary sidebar__new-btn" id="sidebarNewBtn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-          <span>New Analysis</span>
-        </button>
-
-        <div class="sidebar__search">
-          <label for="searchContracts" class="visually-hidden">Search contracts</label>
-          <div class="search-input">
-            <svg class="search-input__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
-              <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <input type="search" id="searchContracts" class="search-input__field" placeholder="Search contracts..." autocomplete="off">
-          </div>
-        </div>
-
-        <nav class="sidebar__nav" aria-label="Recent analyses" id="sidebarHistoryContainer">
-          <!-- Scanned contract/clauses history will be rendered dynamically by JavaScript -->
-        </nav>
-      </div>
-
-
-    </aside>
-
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
 
-      <!-- Top Navigation Bar -->
-      <header class="top-navbar" id="topNavbar">
-        <div class="top-navbar__left">
-          <button class="top-navbar__hamburger" id="hamburgerBtn" type="button" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="sidebar">
-            <svg class="top-navbar__hamburger-icon top-navbar__hamburger-icon--open" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <svg class="top-navbar__hamburger-icon top-navbar__hamburger-icon--close" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-          <h1 class="top-navbar__title">ContractShield AI</h1>
-        </div>
-
-
-
-        <div class="top-navbar__right">
-          <button class="top-navbar__icon-btn top-navbar__theme-btn" id="navThemeToggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">
-            <svg class="top-navbar__theme-icon top-navbar__theme-icon--light" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.75"/>
-              <path d="M12 2V4M12 20V22M4.93 4.93L6.34 6.34M17.66 17.66L19.07 19.07M2 12H4M20 12H22M4.93 19.07L6.34 17.66M17.66 6.34L19.07 4.93" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
-            </svg>
-            <svg class="top-navbar__theme-icon top-navbar__theme-icon--dark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </header>
 
       <div class="main-scroll">
       <section class="hero" aria-label="Product introduction">
+
         <div class="hero__container">
-          <!-- Left side: Content -->
-          <div class="hero__content">
-            <div class="hero__badge">
-              <span class="hero__badge-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                  <path d="M12 2L4 6V12C4 17.55 7.84 22.74 12 24C16.16 22.74 20 17.55 20 12V6L12 2Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span class="hero__badge-text">AI-Powered Legal Assistant</span>
+          <!-- Glass Card -->
+          <div class="hero__glass-card">
+            <!-- Glass Card Header (Logo left, Nav right) -->
+            <div class="glass-card__header">
+              <div class="navbar-brand-text">
+                <span class="navbar-brand-title">ContractShield AI</span>
+                <span class="navbar-brand-subtitle">YOUR TRUSTED LEGAL AID</span>
+              </div>
+              <nav class="glass-card__nav" aria-label="Hero navigation">
+                <a href="#" class="glass-card__nav-link">Home</a>
+                <a href="#howItWorks" class="glass-card__nav-link">How it Works</a>
+                <a href="#uploadSection" class="glass-card__nav-link">Analyze</a>
+              </nav>
             </div>
-            <h2 class="hero__title">Understand Legal Risks <br><span class="hero__title-gradient">Before You Sign</span></h2>
-            <p class="hero__description">
-              Upload contracts, detect risky clauses, understand legal language in plain English, and make informed decisions before signing.
-            </p>
-            <div class="hero__actions">
-              <button class="btn btn--primary hero__btn hero__btn--primary" id="heroUploadBtn" type="button">
-                <span>Upload & Analyze Contract</span>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
-                  <path d="M9 12H15M9 16H13M17 21H7C5.89543 21 5 20.1046 5 19V5C5 3.89543 5.89543 3 7 3H12.5858C12.851 3 13.1054 3.10536 13.2929 3.29289L18.7071 8.70711C18.8946 8.89464 19 9.14901 19 9.41421V19C19 20.1046 18.1046 21 17 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-            <div class="hero__features">
-              <span class="hero__feature-chip">
-                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                AI Summary
-              </span>
-              <span class="hero__feature-chip">
-                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Risk Detection
-              </span>
-              <span class="hero__feature-chip">
-                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Clause Simplification
-              </span>
-              <span class="hero__feature-chip">
-                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Key Obligations
-              </span>
-              <span class="hero__feature-chip">
-                <svg class="hero__feature-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="12" height="12">
-                  <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Questions Before Signing
-              </span>
+
+            <!-- Two-Column Split Content -->
+            <div class="glass-card__body">
+
+              <!-- Right Column: Heading, Description, CTA -->
+              <div class="glass-card__col-right">
+                <h2 class="hero__title">Understand Legal Risks <br><span class="hero__title-gradient">Before You Sign</span></h2>
+                <p class="hero__description">
+                  AI-powered legal intelligence that explains complex contracts in plain English, highlights risky clauses, and helps you sign with confidence.
+                </p>
+                <div class="hero__actions">
+                  <button class="btn btn--secondary hero__btn hero__btn--secondary" id="heroExploreBtn" type="button">
+                    <span>Explore</span>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                      <path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
       <section class="how-it-works" id="howItWorks">
         <div class="how-it-works__container">
-          <h2 class="how-it-works__title">How ContractShield AI Works</h2>
+          <div class="how-it-works__header">
+            <h2 class="how-it-works__title">Scan. Detect. <em>Secure.</em></h2>
+            <p class="how-it-works__description">
+              A secure four-step workflow powered by state-of-the-art legal AI to identify risks, clarify obligations, and sign with confidence.
+            </p>
+          </div>
+
           <div class="how-it-works__grid">
+            <!-- Step 01 -->
             <article class="how-step">
+              <span class="how-step__badge">STEP 01</span>
               <div class="how-step__icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -166,10 +81,19 @@
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
               </div>
-              <h3>Upload Contract</h3>
-              <p>Securely upload your PDF or DOCX file.</p>
+              <h3 class="how-step__title">Upload Contract</h3>
+              <p class="how-step__text">Securely upload your PDF or DOCX file to our encrypted analysis pipeline.</p>
+              <ul class="how-step__list">
+                <li><span class="bullet">›</span> PDF & DOCX support</li>
+                <li><span class="bullet">›</span> Secure encrypted upload</li>
+                <li><span class="bullet">›</span> Drag & Drop interface</li>
+                <li><span class="bullet">›</span> Instant validation</li>
+              </ul>
             </article>
+
+            <!-- Step 02 -->
             <article class="how-step">
+              <span class="how-step__badge">STEP 02</span>
               <div class="how-step__icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -179,10 +103,19 @@
                   <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
               </div>
-              <h3>AI Extracts Clauses</h3>
-              <p>Our AI parses and isolates key legal clauses.</p>
+              <h3 class="how-step__title">AI Extracts Clauses</h3>
+              <p class="how-step__text">Our legal AI parses and categorizes all contract terms and conditions.</p>
+              <ul class="how-step__list">
+                <li><span class="bullet">›</span> ML-based extraction</li>
+                <li><span class="bullet">›</span> Classification by type</li>
+                <li><span class="bullet">›</span> Standard vs custom check</li>
+                <li><span class="bullet">›</span> Natural language parsing</li>
+              </ul>
             </article>
+
+            <!-- Step 03 -->
             <article class="how-step">
+              <span class="how-step__badge">STEP 03</span>
               <div class="how-step__icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -190,10 +123,19 @@
                   <line x1="12" y1="16" x2="12.01" y2="16"></line>
                 </svg>
               </div>
-              <h3>Detects Risks</h3>
-              <p>We cross-reference against compliance patterns.</p>
+              <h3 class="how-step__title">Detects Risks</h3>
+              <p class="how-step__text">Scans clauses against compliance standards to flag unfavorable conditions.</p>
+              <ul class="how-step__list">
+                <li><span class="bullet">›</span> High/medium/low severity</li>
+                <li><span class="bullet">›</span> Missing obligation alerts</li>
+                <li><span class="bullet">›</span> Deviation highlighting</li>
+                <li><span class="bullet">›</span> Plain English explanation</li>
+              </ul>
             </article>
+
+            <!-- Step 04 -->
             <article class="how-step">
+              <span class="how-step__badge">STEP 04</span>
               <div class="how-step__icon">
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -201,10 +143,15 @@
                   <line x1="15" y1="9" x2="9" y2="15"></line>
                 </svg>
               </div>
-              <h3>Generates Report</h3>
-              <p>Get an instant breakdown of liabilities.</p>
-              </article>
-            </div>
+              <h3 class="how-step__title">Generates Report</h3>
+              <p class="how-step__text">Receive a complete summary and redrafting recommendations to share.</p>
+              <ul class="how-step__list">
+                <li><span class="bullet">›</span> Executive summaries</li>
+                <li><span class="bullet">›</span> Actionable redraft tips</li>
+                <li><span class="bullet">›</span> Interactive checklist</li>
+                <li><span class="bullet">›</span> Export to PDF & print</li>
+              </ul>
+            </article>
           </div>
         </div>
       </section>
@@ -215,182 +162,224 @@
             <p class="upload-sec__subtitle">Select a PDF or DOCX file to initiate the AI compliance scan and risk assessment.</p>
           </div>
 
-          <div class="upload-tabs">
-            <button class="upload-tab active" id="tabSingle" type="button">Single Analysis</button>
-            <button class="upload-tab" id="tabCompare" type="button">Side-by-Side Comparison</button>
-          </div>
-          
-          <div class="upload-card">
-            <!-- Tab 1: Single Analysis Container -->
-            <div id="singleUploadContainer">
-              <!-- Hidden input for file selection -->
-              <input type="file" id="contractFileInput" accept=".pdf,.docx" class="visually-hidden">
-              
-              <!-- Drag & Drop Zone -->
-              <div class="upload-dropzone" id="uploadDropzone">
-                <div class="upload-dropzone__body">
-                  <div class="upload-dropzone__icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="40" height="40">
-                      <path d="M12 16V9M12 9L9 12M12 9L15 12M20 16.58C21.196 15.683 21.879 14.249 21.879 12.72C21.879 9.87 19.57 7.56 16.72 7.56C16.48 7.56 16.24 7.58 16.01 7.62C15.22 4.97 12.76 3 9.84 3C6.01 3 2.91 6.1 2.91 9.93C2.91 10.63 3.02 11.31 3.22 11.95C1.89 12.87 1 14.43 1 16.2C1 19.4 3.6 22 6.8 22H17.2C19.85 22 22 19.85 22 17.2C22 16.99 22 16.78 21.97 16.58H20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="upload-sec__layout">
+            <!-- Repositioned Left Sidebar -->
+            <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+              <div class="sidebar__header">
+                <a href="#" class="sidebar__logo" aria-label="ContractShield home">
+                  <span class="sidebar__logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L4 6V12C4 17.55 7.84 22.74 12 24C16.16 22.74 20 17.55 20 12V6L12 2Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                      <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
+                  </span>
+                  <span class="sidebar__logo-text">ContractShield AI</span>
+                </a>
+                <button class="sidebar__collapse-btn" id="sidebarCollapseBtn" type="button" aria-label="Collapse sidebar" title="Collapse sidebar">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="sidebar__body">
+                <button class="btn btn--primary sidebar__new-btn" id="sidebarNewBtn" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  <span>New Analysis</span>
+                </button>
+
+                <div class="sidebar__search">
+                  <label for="searchContracts" class="visually-hidden">Search contracts</label>
+                  <div class="search-input">
+                    <svg class="search-input__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                      <path d="M20 20L16.5 16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <input type="search" id="searchContracts" class="search-input__field" placeholder="Search contracts..." autocomplete="off">
                   </div>
-                  <p class="upload-dropzone__primary-text">Drag and drop your contract here, or click to browse</p>
-                  <p class="upload-dropzone__secondary-text">Supports PDF, DOCX (Max 10 MB)</p>
-                  <label for="contractFileInput" class="btn btn--secondary upload-dropzone__btn">
-                    Choose File
-                  </label>
                 </div>
+
+                <nav class="sidebar__nav" aria-label="Recent analyses" id="sidebarHistoryContainer">
+                  <!-- Scanned contract/clauses history will be rendered dynamically by JavaScript -->
+                </nav>
+              </div>
+
+              <!-- <footer class="sidebar__footer">
+                <div class="sidebar__toggle-row">
+                  <span class="sidebar__toggle-label">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+                    </svg>
+                    Dark Mode
+                  </span>
+                  <button class="toggle-switch" id="darkModeToggle" type="button" role="switch" aria-checked="false" aria-label="Toggle dark mode">
+                    <span class="toggle-switch__thumb"></span>
+                  </button>
+                </div>
+
+                <div class="user-profile">
+                  <div class="user-profile__avatar" aria-hidden="true">CV</div>
+                  <div class="user-profile__info">
+                    <span class="user-profile__name">ContractVerse</span>
+                    <span class="user-profile__plan">Free Plan</span>
+                  </div>
+                </div>
+              </footer> -->
+            </aside>
+
+            <!-- Main Upload Content -->
+            <div class="upload-sec__main">
+              <div class="upload-tabs">
+                <button class="upload-tab active" id="tabSingle" type="button">Single Analysis</button>
+                <button class="upload-tab" id="tabCompare" type="button">Side-by-Side Comparison</button>
               </div>
               
-              <!-- File Status Panel (initially hidden) -->
-              <div class="upload-status-panel" id="uploadStatusPanel" style="display: none;">
-                <div class="upload-status-panel__file-info">
-                  <div class="upload-status-panel__file-icon">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24">
-                      <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                      <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    </svg>
+              <div class="upload-card">
+                <!-- Tab 1: Single Analysis Container -->
+                <div id="singleUploadContainer">
+                  <!-- Hidden input for file selection -->
+                  <input type="file" id="contractFileInput" accept=".pdf,.docx" class="visually-hidden">
+                  
+                  <!-- Drag & Drop Zone -->
+                  <div class="upload-dropzone" id="uploadDropzone">
+                    <div class="upload-dropzone__body">
+                      <div class="upload-dropzone__icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="40" height="40">
+                          <path d="M12 16V9M12 9L9 12M12 9L15 12M20 16.58C21.196 15.683 21.879 14.249 21.879 12.72C21.879 9.87 19.57 7.56 16.72 7.56C16.48 7.56 16.24 7.58 16.01 7.62C15.22 4.97 12.76 3 9.84 3C6.01 3 2.91 6.1 2.91 9.93C2.91 10.63 3.02 11.31 3.22 11.95C1.89 12.87 1 14.43 1 16.2C1 19.4 3.6 22 6.8 22H17.2C19.85 22 22 19.85 22 17.2C22 16.99 22 16.78 21.97 16.58H20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                      <p class="upload-dropzone__primary-text">Drag and drop your contract here, or click to browse</p>
+                      <p class="upload-dropzone__secondary-text">Supports PDF, DOCX (Max 10 MB)</p>
+                      <label for="contractFileInput" class="btn btn--secondary upload-dropzone__btn">
+                        Choose File
+                      </label>
+                    </div>
                   </div>
-                  <div class="upload-status-panel__file-details">
-                    <span class="upload-status-panel__file-name" id="uploadedFileName">Employment_Contract.pdf</span>
-                    <span class="upload-status-panel__file-size" id="uploadedFileSize">1.2 MB</span>
+                  
+                  <!-- File Status Panel (initially hidden) -->
+                  <div class="upload-status-panel" id="uploadStatusPanel" style="display: none;">
+                    <div class="upload-status-panel__file-info">
+                      <div class="upload-status-panel__file-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="24" height="24">
+                          <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                          <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                      </div>
+                      <div class="upload-status-panel__file-details">
+                        <span class="upload-status-panel__file-name" id="uploadedFileName">Employment_Contract.pdf</span>
+                        <span class="upload-status-panel__file-size" id="uploadedFileSize">1.2 MB</span>
+                      </div>
+                      <button class="upload-status-panel__remove-btn" id="removeFileBtn" type="button" aria-label="Remove selected file">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <button class="upload-status-panel__remove-btn" id="removeFileBtn" type="button" aria-label="Remove selected file">
+                  
+                  <!-- Submit button -->
+                  <button class="btn btn--primary upload-card__submit-btn" id="submitAnalysisBtn" type="button" disabled>
+                    <span>Analyze Contract</span>
                     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
-                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Tab 2: Compare Analysis Container -->
+                <div id="compareUploadContainer" style="display: none;">
+                  <!-- Hidden inputs for compare selection -->
+                  <input type="file" id="draftFileInput" accept=".pdf,.docx" class="visually-hidden">
+                  <input type="file" id="playbookFileInput" accept=".pdf,.docx" class="visually-hidden">
+                  
+                  <div class="compare-dropzones">
+                    <div class="compare-dropzone-box">
+                      <h4>Draft Contract</h4>
+                      <div class="upload-dropzone compare-zone" id="draftDropzone">
+                        <div class="upload-dropzone__icon">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28" style="color: var(--color-navy);">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <p class="compare-zone-text" id="draftStatusText">Drag Draft file here, or click to browse</p>
+                        <label for="draftFileInput" class="btn btn--secondary btn--sm">Choose Draft</label>
+                      </div>
+                    </div>
+                    
+                    <div class="compare-dropzone-box">
+                      <h4>Playbook / Standard Template</h4>
+                      <div class="upload-dropzone compare-zone" id="playbookDropzone">
+                        <div class="upload-dropzone__icon">
+                          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28" style="color: var(--color-navy);">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <p class="compare-zone-text" id="playbookStatusText">Drag Playbook here, or click to browse</p>
+                        <label for="playbookFileInput" class="btn btn--secondary btn--sm">Choose Playbook</label>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button class="btn btn--primary upload-card__submit-btn" id="startCompareBtn" type="button" disabled>
+                    <span>Compare Side-by-Side</span>
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
+                      <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </button>
                 </div>
               </div>
-              
-              <!-- Submit button -->
-              <button class="btn btn--primary upload-card__submit-btn" id="submitAnalysisBtn" type="button" disabled>
-                <span>Analyze Contract</span>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
-                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
 
-            <!-- Tab 2: Compare Analysis Container -->
-            <div id="compareUploadContainer" style="display: none;">
-              <!-- Hidden inputs for compare selection -->
-              <input type="file" id="draftFileInput" accept=".pdf,.docx" class="visually-hidden">
-              <input type="file" id="playbookFileInput" accept=".pdf,.docx" class="visually-hidden">
-              
-              <div class="compare-dropzones">
-                <div class="compare-dropzone-box">
-                  <h4>Draft Contract</h4>
-                  <div class="upload-dropzone compare-zone" id="draftDropzone">
-                    <div class="upload-dropzone__icon">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28" style="color: var(--color-navy);">
-                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <p class="compare-zone-text" id="draftStatusText">Drag Draft file here, or click to browse</p>
-                    <label for="draftFileInput" class="btn btn--secondary btn--sm">Choose Draft</label>
-                  </div>
+              <!-- Upload Progress -->
+              <div class="upload-progress" id="uploadProgress">
+                <div class="upload-progress__header">
+                  <span>Uploading...</span>
+                  <span id="uploadPercent">0%</span>
                 </div>
-                
-                <div class="compare-dropzone-box">
-                  <h4>Playbook / Standard Template</h4>
-                  <div class="upload-dropzone compare-zone" id="playbookDropzone">
-                    <div class="upload-dropzone__icon">
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="28" height="28" style="color: var(--color-navy);">
-                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                      </svg>
-                    </div>
-                    <p class="compare-zone-text" id="playbookStatusText">Drag Playbook here, or click to browse</p>
-                    <label for="playbookFileInput" class="btn btn--secondary btn--sm">Choose Playbook</label>
-                  </div>
+                <div class="upload-progress__bar">
+                  <div class="upload-progress__fill" id="uploadProgressFill"></div>
                 </div>
               </div>
-              
-              <button class="btn btn--primary upload-card__submit-btn" id="startCompareBtn" type="button" disabled>
-                <span>Compare Side-by-Side</span>
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" width="18" height="18">
-                  <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-            </div>
 
-            <!-- Upload Progress -->
-<div class="upload-progress" id="uploadProgress">
-
-  <div class="upload-progress__header">
-    <span>Uploading...</span>
-    <span id="uploadPercent">0%</span>
-  </div>
-
-  <div class="upload-progress__bar">
-    <div class="upload-progress__fill" id="uploadProgressFill"></div>
-  </div>
-
-</div>
-
-
-<!-- Upload Success -->
-<div class="upload-success" id="uploadSuccess">
-  ✓ Contract uploaded successfully
-</div>
-
-
-<!-- AI Analysis Loading -->
-<div class="analyzing-state" id="analyzingState">
-
-  <div class="ai-loader"></div>
-
-  <div class="analyzing-state__text">
-    Analyzing Contract...
-  </div>
-
-  <small>
-    AI is reviewing clauses and identifying risks
-  </small>
-
-</div>
-            
-
-
-            <!-- Error Panel (initially hidden) -->
-            <div class="error-panel" id="errorPanel" style="display: none;">
-              <div class="error-panel__header">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="error-panel__icon" style="color: #ef4444; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
-                  <path d="M12 9V13M12 17H12.01M5.07 19H18.93C20.47 19 21.43 17.33 20.66 16L13.73 4C12.96 2.67 11.04 2.67 10.27 4L3.34 16C2.57 17.33 3.53 19 5.07 19Z"/>
-                </svg>
-                <h4 class="error-panel__title">Analysis Failed</h4>
+              <!-- Upload Success -->
+              <div class="upload-success" id="uploadSuccess">
+                ✓ Contract uploaded successfully
               </div>
-              <p class="error-panel__message" id="errorPanelMessage">
-                An internal system ingestion failure occurred.
-              </p>
-              <button class="btn btn--secondary error-panel__retry-btn" id="retryAnalysisBtn" type="button" style="margin-top: 10px;">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px;">
-                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-                </svg>
-                Retry Analysis
-              </button>
+
+              <!-- AI Analysis Loading -->
+              <div class="analyzing-state" id="analyzingState">
+                <div class="ai-loader"></div>
+                <div class="analyzing-state__text">
+                  Analyzing Contract...
+                </div>
+                <small>
+                  AI is reviewing clauses and identifying risks
+                </small>
+              </div>
+
+              <!-- Error Panel (initially hidden) -->
+              <div class="error-panel" id="errorPanel" style="display: none;">
+                <div class="error-panel__header">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="error-panel__icon" style="color: #ef4444; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
+                    <path d="M12 9V13M12 17H12.01M5.07 19H18.93C20.47 19 21.43 17.33 20.66 16L13.73 4C12.96 2.67 11.04 2.67 10.27 4L3.34 16C2.57 17.33 3.53 19 5.07 19Z"/>
+                  </svg>
+                  <h4 class="error-panel__title">Analysis Failed</h4>
+                </div>
+                <p class="error-panel__message" id="errorPanelMessage">
+                  An internal system ingestion failure occurred.
+                </p>
+                <button class="btn btn--secondary error-panel__retry-btn" id="retryAnalysisBtn" type="button" style="margin-top: 10px;">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="14" height="14" style="stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; margin-right: 6px;">
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+                  </svg>
+                  Retry Analysis
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- Landing Page Footer -->
-      <footer class="main-footer" id="mainFooter">
-        <div class="main-footer__content">
-          <p class="main-footer__disclaimer">
-            <strong>Disclaimer:</strong> ContractShield AI provides AI-generated insights for informational purposes only and does not replace professional legal advice.
-          </p>
-          <div class="main-footer__meta">
-            <div class="main-footer__links">
-              <a href="#">Privacy Policy</a>
-              <a href="#">Terms</a>
-              <a href="#">Security</a>
-            </div>
-            <p>© 2026 ContractVerse. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
 
       </div>
     </main>
@@ -658,6 +647,14 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+      <footer class="main-footer">
+        <div class="main-footer__content">
+          <p class="main-footer__disclaimer">
+            <strong>Disclaimer:</strong> ContractShield AI provides AI-generated insights for informational purposes only and does not replace professional legal advice.
+          </p>
+        </div>
+      </footer>
 
 </body>
 </html>

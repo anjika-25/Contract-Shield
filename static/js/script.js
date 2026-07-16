@@ -172,6 +172,7 @@
 
   /* --- Dashboard & Report Elements --- */
   const heroUploadBtn = document.getElementById('heroUploadBtn');
+  const heroExploreBtn = document.getElementById('heroExploreBtn');
   const heroDemoBtn = document.getElementById('heroDemoBtn');
   const mockRiskProgress = document.getElementById('mockRiskProgress');
   const uploadDropzone = document.getElementById('uploadDropzone');
@@ -205,6 +206,10 @@
    */
   function enterLandingMode() {
     document.body.classList.add('landing-mode');
+    // Sync sidebar collapsed state to landing-mode class
+    if (isSidebarCollapsed) {
+      document.body.classList.add('sidebar-collapsed-landing');
+    }
   }
 
   /**
@@ -212,6 +217,7 @@
    */
   function exitLandingMode() {
     document.body.classList.remove('landing-mode');
+    document.body.classList.remove('sidebar-collapsed-landing');
   }
 
   /**
@@ -255,6 +261,10 @@
     isSidebarCollapsed = !isSidebarCollapsed;
     localStorage.setItem(STORAGE_KEY_SIDEBAR, String(isSidebarCollapsed));
     applySidebarState();
+    // Sync landing-mode sidebar collapse class
+    if (document.body.classList.contains('landing-mode')) {
+      document.body.classList.toggle('sidebar-collapsed-landing', isSidebarCollapsed);
+    }
   }
 
   /**
@@ -850,25 +860,10 @@
    * Bind all event listeners
    */
   function bindEvents() {
-    hamburgerBtn.addEventListener('click', toggleSidebar);
-    sidebarCollapseBtn.addEventListener('click', toggleDesktopSidebar);
-    if (darkModeToggle) darkModeToggle.addEventListener('click', toggleDarkMode);
-    if (navThemeToggle) navThemeToggle.addEventListener('click', toggleDarkMode);
-    if (notificationBtn) {
-      notificationBtn.addEventListener('click', () => {
-        notificationBtn.classList.add('is-active');
-        setTimeout(() => notificationBtn.classList.remove('is-active'), 200);
-      });
-    }
-    if (profileBtn) {
-      profileBtn.addEventListener('click', () => {
-        const isExpanded = profileBtn.getAttribute('aria-expanded') === 'true';
-        profileBtn.setAttribute('aria-expanded', String(!isExpanded));
-      });
-    }
-
-    sidebarOverlay.addEventListener('click', closeMobileSidebar);
-    searchInput.addEventListener('input', filterContracts);
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleSidebar);
+    if (sidebarCollapseBtn) sidebarCollapseBtn.addEventListener('click', toggleDesktopSidebar);
+    if (searchInput) searchInput.addEventListener('input', filterContracts);
+    if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
     // New Analysis button resets UI to upload view
     if (sidebarNewBtn) {
@@ -1270,6 +1265,15 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         const uploadSection = document.getElementById('uploadSection');
         if (uploadSection) {
           uploadSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    }
+
+    if (heroExploreBtn) {
+      heroExploreBtn.addEventListener('click', () => {
+        const howItWorks = document.getElementById('howItWorks');
+        if (howItWorks) {
+          howItWorks.scrollIntoView({ behavior: 'smooth' });
         }
       });
     }
@@ -1848,13 +1852,60 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
     return div;
   }
 
+  /**
+   * Typewriter effect for the main hero heading
+   */
+  function initTypewriter() {
+    const titleEl = document.querySelector('.hero__title');
+    if (!titleEl) return;
+    
+    const line1 = "Understand Legal Risks";
+    const line2 = "Before You Sign";
+    
+    // Clear and structure elements
+    titleEl.innerHTML = '';
+    
+    const span1 = document.createElement('span');
+    span1.className = 'typewriter-line-1';
+    titleEl.appendChild(span1);
+    
+    const br = document.createElement('br');
+    titleEl.appendChild(br);
+    
+    const span2 = document.createElement('span');
+    span2.className = 'hero__title-gradient typewriter-line-2';
+    titleEl.appendChild(span2);
+    
+    let charIndex1 = 0;
+    let charIndex2 = 0;
+    
+    function typeLine1() {
+      if (charIndex1 < line1.length) {
+        span1.textContent += line1.charAt(charIndex1);
+        charIndex1++;
+        setTimeout(typeLine1, 40);
+      } else {
+        typeLine2();
+      }
+    }
+    
+    function typeLine2() {
+      if (charIndex2 < line2.length) {
+        span2.textContent += line2.charAt(charIndex2);
+        charIndex2++;
+        setTimeout(typeLine2, 50);
+      }
+    }
+    
+    typeLine1();
+  }
+
   function init() {
-    restorePreferences();
-    setDarkMode(document.body.classList.contains('dark-mode'));
-    // Start in landing mode by default; exitLandingMode is called by loadContract if history exists
+    // Always dark mode
+    document.body.classList.add('dark-mode');
     enterLandingMode();
     bindEvents();
-    updateHamburgerAria();
+    initTypewriter();
     loadHistoryFromDatabase();
   }
 

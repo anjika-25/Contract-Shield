@@ -773,9 +773,12 @@
       analysisPanel.appendChild(listContainer);
     }
 
-    // 5. Update Full Report Section
-    const reportTitle = document.querySelector('.analysis-report h2');
-    if (reportTitle) reportTitle.textContent = `Contract Analysis Report: ${contract.name}`;
+    // 5. Update Full Report Section Header Metadata
+    const reportContractName = document.getElementById('reportContractName');
+    if (reportContractName) reportContractName.textContent = contract.name;
+
+    const reportUploadDate = document.getElementById('reportUploadDate');
+    if (reportUploadDate) reportUploadDate.textContent = contract.date || 'Just now';
 
     // Populate SaaS Summary Dashboard Grid
     const dbContractType = document.getElementById('dashboardContractType');
@@ -789,17 +792,76 @@
 
     const dbRiskLevelIcon = document.getElementById('dashboardRiskLevelIcon');
     if (dbRiskLevelIcon) {
-      dbRiskLevelIcon.textContent = contract.riskScore > 80 ? '🔴' : contract.riskScore > 50 ? '🟠' : '🟢';
+      dbRiskLevelIcon.innerHTML = contract.riskScore > 80 
+        ? `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+        : contract.riskScore > 50 
+        ? `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
+        : `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
     }
 
     const dbRiskScore = document.getElementById('dashboardRiskScore');
     if (dbRiskScore) dbRiskScore.textContent = `${contract.riskScore}%`;
+
+    // Dynamic Segmented Needle Indicator
+    const dbRiskNeedle = document.getElementById('dashboardRiskNeedle');
+    if (dbRiskNeedle) {
+      dbRiskNeedle.style.left = `${contract.riskScore}%`;
+    }
+
+    const dbRiskScoreBadge = document.getElementById('dashboardRiskScoreBadge');
+    if (dbRiskScoreBadge) {
+      dbRiskScoreBadge.textContent = contract.riskLevel ? contract.riskLevel.split(' ')[0] : 'Low';
+      dbRiskScoreBadge.className = 'dashboard-card__badge ' + 
+        (contract.riskScore > 80 ? 'high' : contract.riskScore > 50 ? 'medium' : 'low');
+    }
+
+    // Compute Risk Severity Breakdown
+    let highCount = 0;
+    let mediumCount = 0;
+    let lowCount = 0;
+    if (contract.clauses) {
+      contract.clauses.forEach(c => {
+        const s = c.severity ? c.severity.toLowerCase() : 'low';
+        if (s === 'high') highCount++;
+        else if (s === 'medium') mediumCount++;
+        else lowCount++;
+      });
+    }
+
+    const dbRiskBreakdown = document.getElementById('dashboardRiskBreakdown');
+    if (dbRiskBreakdown) {
+      dbRiskBreakdown.innerHTML = `
+        <span class="breakdown-item high">${highCount} High</span>
+        <span class="breakdown-item medium">${mediumCount} Med</span>
+        <span class="breakdown-item low">${lowCount} Low</span>
+      `;
+    }
 
     const dbRiskyClauses = document.getElementById('dashboardRiskyClauses');
     if (dbRiskyClauses) dbRiskyClauses.textContent = contract.clauses.length;
 
     const dbKeyObligations = document.getElementById('dashboardKeyObligations');
     if (dbKeyObligations) dbKeyObligations.textContent = contract.obligations.length;
+
+    // Helper to generate Action Badges dynamically
+    function getActionBadge(recommendation, severity) {
+      const recLower = recommendation.toLowerCase();
+      let label = 'Review';
+      let badgeClass = 'review';
+      
+      if (recLower.includes('negotiate') || recLower.includes('discuss')) {
+        label = 'Negotiate';
+        badgeClass = 'negotiate';
+      } else if (recLower.includes('remove') || recLower.includes('delete') || severity === 'high') {
+        label = 'Needs Attention';
+        badgeClass = 'needs-attention';
+      } else if (recLower.includes('accept') || recLower.includes('standard') || severity === 'low') {
+        label = 'Accept';
+        badgeClass = 'accept';
+      }
+      
+      return `<span class="action-badge ${badgeClass}">${label}</span>`;
+    }
 
     // Populate Detected Risks Table
     const tableBody = document.querySelector('#riskyClausesTable tbody');
@@ -822,7 +884,10 @@
             <td><strong>${clause.title.split(' (')[0]}</strong></td>
             <td><span class="severity-badge ${badgeClass}">${severityLabel}</span></td>
             <td>${clause.risk}</td>
-            <td>${clause.recommendation.split('. ')[0]}.</td>
+            <td style="display: flex; align-items: center; gap: 4px;">
+              ${getActionBadge(clause.recommendation, badgeClass)}
+              <span>${clause.recommendation.split('. ')[0]}.</span>
+            </td>
           `;
           
           tr.addEventListener('click', () => openClauseModal(clause));
@@ -831,19 +896,64 @@
       }
     }
 
-    const summaryParagraph = document.querySelector('.report-section:nth-of-type(3) p');
+    const summaryParagraph = document.getElementById('reportSummaryText');
     if (summaryParagraph) {
       summaryParagraph.textContent = contract.summary;
     }
 
-    const suggestionList = document.querySelector('.report-section:nth-of-type(2) ul');
-    if (suggestionList) {
-      suggestionList.innerHTML = '';
-      contract.clauses.forEach(clause => {
-        const li = document.createElement('li');
-        li.textContent = clause.recommendation.split('. ')[0];
-        suggestionList.appendChild(li);
-      });
+    // Populate Executive Summary Card Assessment Badge & Insights
+    const dbSummaryBadge = document.getElementById('summaryAssessmentBadge');
+    if (dbSummaryBadge) {
+      const isHigh = contract.riskScore >= 70;
+      const isMedium = contract.riskScore >= 30;
+      
+      dbSummaryBadge.textContent = isHigh ? 'High Risk' : isMedium ? 'Needs Review' : 'Safe to Sign';
+      dbSummaryBadge.className = 'summary-card__assessment-badge ' + (isHigh ? 'high' : isMedium ? 'medium' : 'low');
+    }
+
+    const dbSummaryInsights = document.getElementById('summaryInsightsList');
+    if (dbSummaryInsights) {
+      dbSummaryInsights.innerHTML = `
+        <div class="insight-pill">
+          <span class="insight-pill__label">Type:</span>
+          <span class="insight-pill__value">${contract.contractType || 'Unknown'}</span>
+        </div>
+        <div class="insight-pill">
+          <span class="insight-pill__label">Flagged Issues:</span>
+          <span class="insight-pill__value">${contract.clauses ? contract.clauses.length : 0}</span>
+        </div>
+        <div class="insight-pill">
+          <span class="insight-pill__label">Obligations:</span>
+          <span class="insight-pill__value">${contract.obligations ? contract.obligations.length : 0}</span>
+        </div>
+      `;
+    }
+
+    const suggestionContainer = document.getElementById('reportSuggestionsContainer');
+    if (suggestionContainer) {
+      suggestionContainer.innerHTML = '';
+      if (contract.clauses && contract.clauses.length > 0) {
+        contract.clauses.forEach(clause => {
+          const card = document.createElement('div');
+          card.className = 'suggestion-card';
+          
+          card.innerHTML = `
+            <div class="suggestion-card__icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="suggestion-card__content">
+              <span class="suggestion-card__title">${clause.recommendation.split('. ')[0]}.</span>
+              <p class="suggestion-card__explanation">${clause.risk}</p>
+            </div>
+          `;
+          suggestionContainer.appendChild(card);
+        });
+      } else {
+        suggestionContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: var(--color-gray-400); padding: 24px;">No suggestions needed.</div>`;
+      }
     }
 
     // Smooth scroll mockup dashboard layout back into alignment if they clicked from list
@@ -1027,7 +1137,6 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
       });
     }
 
-    // Download Report PDF Click Event (UI only simulation)
     const downloadReportBtn = document.getElementById('downloadReportBtn');
     if (downloadReportBtn) {
       downloadReportBtn.addEventListener('click', () => {
@@ -1062,109 +1171,351 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
           try {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
-            let y = 20;
+            const margin = 15;
+            const contentWidth = 180;
+            let y = 25;
 
             function checkPageBound(neededHeight) {
-              if (y + neededHeight > 280) {
+              if (y + neededHeight > 272) {
                 doc.addPage();
-                y = 20;
+                y = 25;
               }
             }
 
-            // Header Title
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20);
-            doc.setTextColor(17, 24, 39);
-            doc.text("LegalLens AI - Contract Analysis Report", 15, y);
-            y += 8;
-
-            // Metadata
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(107, 114, 128);
-            doc.text("Generated: " + new Date().toLocaleDateString(), 15, y);
-            y += 6;
-            doc.text("Contract Name: " + contract.name, 15, y);
-            y += 6;
-            doc.text("Overall Risk Score: " + contract.riskScore + "% (" + contract.riskLevel + ")", 15, y);
-            y += 6;
-
-            // Divider Line
+            // ==========================================
+            // PAGE 1: COVER PAGE
+            // ==========================================
+            doc.setFillColor(248, 249, 250);
+            doc.rect(margin, 20, contentWidth, 250, 'F');
             doc.setDrawColor(229, 231, 235);
-            doc.line(15, y, 195, y);
-            y += 10;
+            doc.rect(margin, 20, contentWidth, 250, 'S');
 
-            // Summary Section
-            checkPageBound(30);
+            // Header Banner
+            doc.setFillColor(28, 28, 26); // Match branding color-dark navy
+            doc.rect(margin, 20, contentWidth, 60, 'F');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.setTextColor(250, 250, 247);
+            doc.text("CONTRACT ANALYSIS REPORT", 105, 45, { align: "center" });
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10.5);
+            doc.setTextColor(156, 163, 175);
+            doc.text("ContractShield  |  YOUR TRUSTED LEGAL AID", 105, 55, { align: "center" });
+
+            // Report Metadata Card
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 95, 170, 70, 'F');
+            doc.setDrawColor(229, 231, 235);
+            doc.rect(20, 95, 170, 70, 'S');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.setTextColor(28, 28, 26);
+            doc.text("REPORT METADATA", 25, 107);
+            doc.line(25, 111, 185, 111);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(107, 114, 128);
+            doc.text("Contract File:", 25, 121);
+            doc.text("Analysis Date:", 25, 129);
+            doc.text("Contract Type:", 25, 137);
+            doc.text("AI Confidence Score:", 25, 145);
+            doc.text("Analysis Status:", 25, 153);
+
+            doc.setFont("helvetica", "normal");
+            doc.setTextColor(28, 28, 26);
+            
+            const cleanContractName = contract.name.replace(/[^\x00-\x7F]/g, "").trim();
+            doc.text(cleanContractName, 70, 121);
+            doc.text(contract.date || new Date().toLocaleDateString(), 70, 129);
+            doc.text(contract.contractType || "General", 70, 137);
+            doc.text("98.4% (Optimal)", 70, 145);
+            doc.text("Analysis Completed", 70, 153);
+
+            // Risk Overview Section on Cover
+            const isHigh = contract.riskScore >= 70;
+            const isMedium = contract.riskScore >= 30;
+            const levelText = isHigh ? "HIGH RISK" : isMedium ? "NEEDS REVIEW" : "SAFE TO SIGN";
+            const levelColor = isHigh ? [220, 38, 38] : isMedium ? [217, 119, 6] : [22, 163, 74];
+
+            doc.setFillColor(255, 255, 255);
+            doc.rect(20, 180, 170, 60, 'F');
+            doc.setDrawColor(levelColor[0], levelColor[1], levelColor[2]);
+            doc.rect(20, 180, 170, 60, 'S');
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.setTextColor(107, 114, 128);
+            doc.text("OVERALL CONTRACT RISK RATINGS", 25, 192);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(36);
+            doc.setTextColor(levelColor[0], levelColor[1], levelColor[2]);
+            doc.text(`${contract.riskScore}%`, 25, 230);
+
             doc.setFont("helvetica", "bold");
             doc.setFontSize(13);
-            doc.setTextColor(17, 24, 39);
-            doc.text("1. Executive Summary", 15, y);
-            y += 8;
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.setTextColor(55, 65, 81);
-            const summaryLines = doc.splitTextToSize(contract.summary, 180);
-            doc.text(summaryLines, 15, y);
-            y += (summaryLines.length * 5) + 10;
+            doc.text(levelText, 85, 212);
 
-            // Obligations Section
-            checkPageBound(30);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9.5);
+            doc.setTextColor(107, 114, 128);
+            const detailLines = doc.splitTextToSize("Primary recommendation rating for this agreement based on AI legal parsing. Check detailed concerns below before proceeding.", 100);
+            doc.text(detailLines, 85, 221);
+
+            // Disclaimer on Cover
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(156, 163, 175);
+            doc.text("Disclaimer: ContractShield provides automated scanning. Not a substitute for formal legal counsel.", 105, 262, { align: "center" });
+
+            // ==========================================
+            // PAGE 2: SUMMARY & OBLIGATIONS TABLE
+            // ==========================================
+            doc.addPage();
+            y = 25;
+
             doc.setFont("helvetica", "bold");
             doc.setFontSize(13);
-            doc.setTextColor(17, 24, 39);
-            doc.text("2. Key Obligations Checklist", 15, y);
+            doc.setTextColor(28, 28, 26);
+            doc.text("1. Executive Summary & Assessment", margin, y);
             y += 8;
+
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
+            doc.setFontSize(9.5);
             doc.setTextColor(55, 65, 81);
+            
+            const cleanSummary = contract.summary.replace(/[^\x00-\x7F]/g, "").trim();
+            const summaryLines = doc.splitTextToSize(cleanSummary, contentWidth);
+            doc.text(summaryLines, margin, y);
+            y += (summaryLines.length * 5.2) + 12;
+
+            // Key Obligations Table
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(28, 28, 26);
+            doc.text("2. Key Obligations Table Checklist", margin, y);
+            y += 8;
+
+            // Draw Table Header
+            doc.setFillColor(243, 244, 246);
+            doc.rect(margin, y, contentWidth, 8, 'F');
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(55, 65, 81);
+            doc.text("Obligation Covenant Description", margin + 4, y + 5);
+            doc.text("Compliance Status", margin + 115, y + 5);
+            doc.text("Check Level", margin + 150, y + 5);
+            y += 8;
+
             contract.obligations.forEach(ob => {
-              const obStr = "- [" + ob.status + "] " + ob.name;
-              const obLines = doc.splitTextToSize(obStr, 175);
-              checkPageBound(obLines.length * 5 + 4);
-              doc.text(obLines, 20, y);
-              y += (obLines.length * 5) + 2;
-            });
-            y += 8;
+              const cleanObName = ob.name.replace(/[^\x00-\x7F]/g, "").trim();
+              const nameLines = doc.splitTextToSize(cleanObName, 105);
+              const rowHeight = Math.max(8, nameLines.length * 5);
 
-            // Risks Section
-            checkPageBound(30);
+              checkPageBound(rowHeight + 4);
+
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(8.5);
+              doc.setTextColor(75, 85, 99);
+              doc.text(nameLines, margin + 4, y + 4);
+              doc.text(ob.status || "Active", margin + 115, y + 4);
+              doc.text("Required Check", margin + 150, y + 4);
+
+              doc.setDrawColor(243, 244, 246);
+              doc.line(margin, y + rowHeight, margin + contentWidth, y + rowHeight);
+              y += rowHeight;
+            });
+
+            y += 12;
+
+            // ==========================================
+            // PAGE 3: DETAILED CLAUSE RISKS CARDS
+            // ==========================================
+            checkPageBound(40);
             doc.setFont("helvetica", "bold");
             doc.setFontSize(13);
-            doc.setTextColor(17, 24, 39);
-            doc.text("3. Detected Risks & Recommendations", 15, y);
+            doc.setTextColor(28, 28, 26);
+            doc.text("3. Detected Risks & Recommended Actions", margin, y);
             y += 8;
-            contract.clauses.forEach(clause => {
-              checkPageBound(35);
+
+            contract.clauses.forEach((clause, index) => {
+              const cleanRisk = clause.risk.replace(/[^\x00-\x7F]/g, "").trim();
+              const whyItMattersLines = doc.splitTextToSize(cleanRisk, 160);
+              
+              const recClean = (clause.recommendation || clause.explanation || "").replace(/Recommendation:\s*/i, "");
+              const cleanRec = recClean.replace(/[^\x00-\x7F]/g, "").trim();
+              const recLines = doc.splitTextToSize(cleanRec, 160);
+
+              const cardContentHeight = 6 + 6 + (whyItMattersLines.length * 4.5) + (recLines.length * 4.5) + 18;
+              checkPageBound(cardContentHeight);
+
+              // Draw Card Background
+              doc.setFillColor(255, 255, 255);
+              doc.setDrawColor(229, 231, 235);
+              doc.rect(margin, y, contentWidth, cardContentHeight - 5, 'FD');
+
+              // Color-coded left indicator bar
+              const sev = clause.severity ? clause.severity.toLowerCase() : 'low';
+              const sColor = sev === 'high' ? [220, 38, 38] : sev === 'medium' ? [217, 119, 6] : [22, 163, 74];
+              doc.setFillColor(sColor[0], sColor[1], sColor[2]);
+              doc.rect(margin, y, 4, cardContentHeight - 5, 'F');
+
+              let innerY = y + 6;
+
+              // Title
               doc.setFont("helvetica", "bold");
-              doc.setFontSize(10.5);
-              
-              // Set color based on severity
-              if (clause.severity === 'high') {
-                doc.setTextColor(185, 28, 28);
-              } else if (clause.severity === 'medium') {
-                doc.setTextColor(217, 119, 6);
-              } else {
-                doc.setTextColor(22, 163, 74);
-              }
-              
-              doc.text(clause.title, 15, y);
-              y += 6;
-              
+              doc.setFontSize(10);
+              doc.setTextColor(28, 28, 26);
+              const cleanTitle = clause.title.replace(/[^\x00-\x7F]/g, "").replace(/[\u26A0\u2705\u2714\u2611\u26A1]/g, '').trim();
+              doc.text(`${index + 1}. ${cleanTitle}`, margin + 8, innerY);
+
+              // Severity
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(8);
+              doc.setTextColor(sColor[0], sColor[1], sColor[2]);
+              doc.text(sev.toUpperCase(), margin + 155, innerY);
+
+              innerY += 7;
+
+              // Why it matters
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(8.5);
+              doc.setTextColor(107, 114, 128);
+              doc.text("POTENTIAL RISK & CONCERN:", margin + 8, innerY);
+              innerY += 4.5;
+
               doc.setFont("helvetica", "normal");
-              doc.setFontSize(9.5);
+              doc.setFontSize(8.5);
               doc.setTextColor(55, 65, 81);
-              
-              const riskText = "Risk: " + clause.risk;
-              const riskLines = doc.splitTextToSize(riskText, 180);
-              doc.text(riskLines, 15, y);
-              y += (riskLines.length * 5) + 1;
-              
-              const recText = "Recommendation: " + (clause.recommendation || clause.explanation || "");
-              const recLines = doc.splitTextToSize(recText, 180);
-              doc.text(recLines, 15, y);
-              y += (recLines.length * 5) + 6;
+              doc.text(whyItMattersLines, margin + 8, innerY);
+              innerY += (whyItMattersLines.length * 4.5) + 3;
+
+              // Action recommendation
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(8.5);
+              doc.setTextColor(107, 114, 128);
+              doc.text("RECOMMENDED NEGOTIATION / REVISION:", margin + 8, innerY);
+              innerY += 4.5;
+
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(8.5);
+              doc.setTextColor(55, 65, 81);
+              doc.text(recLines, margin + 8, innerY);
+
+              y += cardContentHeight + 3;
             });
+
+            // ==========================================
+            // PAGE 4: QUESTIONS & NEGOTIATION TIPS
+            // ==========================================
+            checkPageBound(60);
+            y += 8;
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(28, 28, 26);
+            doc.text("4. Questions to Ask Before Signing", margin, y);
+            y += 8;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.setTextColor(55, 65, 81);
+
+            const questionsList = [
+              "Are there any mutual caps on liability that can be negotiated?",
+              "Does the governing law align with your local state or country?",
+              "Can the intellectual property assignment terms be restricted only to deliverable items?",
+              "Is there a clear termination clause for convenience with a standard notice period?"
+            ];
+
+            questionsList.forEach(q => {
+              checkPageBound(10);
+              const qLines = doc.splitTextToSize("-  " + q, contentWidth - 10);
+              doc.text(qLines, margin + 4, y);
+              y += (qLines.length * 5) + 2;
+            });
+
+            y += 8;
+            checkPageBound(40);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(28, 28, 26);
+            doc.text("5. Negotiation Guidelines & Tips", margin, y);
+            y += 8;
+
+            const negotiationTipsList = [
+              "Ensure liability clauses are mutual rather than unilateral.",
+              "Verify governing laws match your primary place of business operation.",
+              "Request written exceptions or schedules for IP transfers before signing."
+            ];
+
+            negotiationTipsList.forEach((tip, idx) => {
+              checkPageBound(10);
+              const tipLines = doc.splitTextToSize(`${idx + 1}.  ${tip}`, contentWidth - 10);
+              doc.text(tipLines, margin + 4, y);
+              y += (tipLines.length * 5) + 2;
+            });
+
+            y += 8;
+            checkPageBound(50);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(13);
+            doc.setTextColor(28, 28, 26);
+            doc.text("6. Legal Terms Glossary (Plain English)", margin, y);
+            y += 8;
+
+            const glossaryList = [
+              ["Indemnity", "An obligation to compensate another party for losses or damages incurred."],
+              ["Limitation of Liability", "A cap on the maximum financial damages a party is responsible for under the contract."],
+              ["Governing Law", "The jurisdiction and legal framework that will govern dispute resolutions."]
+            ];
+
+            glossaryList.forEach(item => {
+              checkPageBound(12);
+              doc.setFont("helvetica", "bold");
+              doc.setFontSize(9);
+              doc.setTextColor(28, 28, 26);
+              doc.text(item[0] + ": ", margin + 4, y);
+              const labelWidth = doc.getTextWidth(item[0] + ": ");
+
+              doc.setFont("helvetica", "normal");
+              doc.setFontSize(9);
+              doc.setTextColor(75, 85, 99);
+              const glLines = doc.splitTextToSize(item[1], contentWidth - 12 - labelWidth);
+              doc.text(glLines, margin + 4 + labelWidth, y);
+
+              y += (glLines.length * 5) + 3;
+            });
+
+            // Loop through all pages to draw header/footer dynamically
+            const totalPages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= totalPages; i++) {
+              doc.setPage(i);
+              
+              if (i > 1) {
+                // Top Header line
+                doc.setDrawColor(229, 231, 235);
+                doc.setLineWidth(0.5);
+                doc.line(margin, 12, 195, 12);
+                
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(8);
+                doc.setTextColor(156, 163, 175);
+                doc.text("ContractShield - Enterprise Contract Analysis Report", margin, 9);
+                doc.text("CONFIDENTIAL", 195, 9, { align: "right" });
+                
+                // Bottom Footer line
+                doc.line(margin, 280, 195, 280);
+                doc.text("ContractShield (c) 2026. Powered by AI Legal Intelligence.", margin, 285);
+                doc.text(`Page ${i} of ${totalPages}`, 195, 285, { align: "right" });
+              }
+            }
 
             // Save PDF File
             doc.save(contract.name.replace(/\.[^/.]+$/, "") + "_Analysis_Report.pdf");
@@ -1427,6 +1778,44 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
       });
     }
 
+    function resetUploadProgressSuccess() {
+      if (uploadProgress) {
+        uploadProgress.style.display = 'none';
+        if (uploadProgressFill) uploadProgressFill.style.width = '0%';
+      }
+      if (uploadSuccess) {
+        uploadSuccess.style.display = 'none';
+      }
+    }
+
+    function runCompareUploadSimulation(fileName, successMessage, onComplete) {
+      if (uploadProgress) {
+        uploadProgress.style.display = 'flex';
+        if (uploadSuccess) uploadSuccess.style.display = 'none';
+        if (uploadProgressFill) uploadProgressFill.style.width = '0%';
+        if (uploadPercent) uploadPercent.textContent = '0%';
+        
+        let progress = 0;
+        const progressTimer = setInterval(() => {
+          progress += 25;
+          if (uploadProgressFill) uploadProgressFill.style.width = progress + '%';
+          if (uploadPercent) uploadPercent.textContent = progress + '%';
+
+          if (progress >= 100) {
+            clearInterval(progressTimer);
+            uploadProgress.style.display = 'none';
+            if (uploadSuccess) {
+              uploadSuccess.textContent = successMessage;
+              uploadSuccess.style.display = 'flex';
+            }
+            if (onComplete) onComplete();
+          }
+        }, 100);
+      } else {
+        if (onComplete) onComplete();
+      }
+    }
+
     // Tab Switching logic
     const tabSingle = document.getElementById('tabSingle');
     const tabCompare = document.getElementById('tabCompare');
@@ -1439,6 +1828,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         tabCompare.classList.remove('active');
         singleUploadContainer.style.display = 'block';
         compareUploadContainer.style.display = 'none';
+        resetUploadProgressSuccess();
         
         // Hide comparison report, show single analysis if active
         const compareReport = document.getElementById('compare-report');
@@ -1454,6 +1844,7 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         tabSingle.classList.remove('active');
         singleUploadContainer.style.display = 'none';
         compareUploadContainer.style.display = 'block';
+        resetUploadProgressSuccess();
         
         // Hide single report, show comparison if active
         const analysisReport = document.getElementById('analysis-report');
@@ -1481,9 +1872,12 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         }
       });
       draftFileInput.addEventListener('change', () => {
-        if (draftFileInput.files[0]) {
-          draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${draftFileInput.files[0].name}`;
-          checkCompareReady();
+        const file = draftFileInput.files[0];
+        if (file) {
+          runCompareUploadSimulation(file.name, "✓ Draft contract uploaded successfully", () => {
+            draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${file.name}`;
+            checkCompareReady();
+          });
         }
       });
       ['dragenter', 'dragover'].forEach(name => {
@@ -1502,8 +1896,10 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         const files = e.dataTransfer.files;
         if (files.length > 0) {
           draftFileInput.files = files;
-          draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${files[0].name}`;
-          checkCompareReady();
+          runCompareUploadSimulation(files[0].name, "✓ Draft contract uploaded successfully", () => {
+            draftStatusText.innerHTML = `<strong>Selected Draft:</strong> ${files[0].name}`;
+            checkCompareReady();
+          });
         }
       });
     }
@@ -1515,9 +1911,12 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         }
       });
       playbookFileInput.addEventListener('change', () => {
-        if (playbookFileInput.files[0]) {
-          playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${playbookFileInput.files[0].name}`;
-          checkCompareReady();
+        const file = playbookFileInput.files[0];
+        if (file) {
+          runCompareUploadSimulation(file.name, "✓ Playbook contract uploaded successfully", () => {
+            playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${file.name}`;
+            checkCompareReady();
+          });
         }
       });
       ['dragenter', 'dragover'].forEach(name => {
@@ -1536,8 +1935,10 @@ ${contract.clauses.map(clause => `\n* ${clause.title}\n  - Risk: ${clause.risk}\
         const files = e.dataTransfer.files;
         if (files.length > 0) {
           playbookFileInput.files = files;
-          playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${files[0].name}`;
-          checkCompareReady();
+          runCompareUploadSimulation(files[0].name, "✓ Playbook contract uploaded successfully", () => {
+            playbookStatusText.innerHTML = `<strong>Selected Playbook:</strong> ${files[0].name}`;
+            checkCompareReady();
+          });
         }
       });
     }

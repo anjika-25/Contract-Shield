@@ -2662,6 +2662,9 @@ body.landing-mode.sidebar-collapsed-landing .sidebar__collapse-btn svg {
 }
 
 .analysis-report {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -2679,11 +2682,11 @@ body.landing-mode.sidebar-collapsed-landing .sidebar__collapse-btn svg {
   background: var(--color-white);
   border: 1px solid var(--color-gray-200);
   border-radius: 20px;
-  padding: 40px;
+  padding: 32px;
   box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
 body.dark-mode .report-card {
@@ -2692,12 +2695,25 @@ body.dark-mode .report-card {
 }
 
 .report-section {
-  padding: 0;
-  background: transparent;
-  border: none;
+  margin-top: 18px;
+  padding: 32px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-mode .report-section {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-200);
+}
+
+.report-section:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
 }
 
 .report-section h3 {
@@ -2743,53 +2759,90 @@ body.dark-mode .report-section li {
 }
 
 /* Dashboard Grid */
+/* Dashboard Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 0;
 }
 
 .dashboard-card {
+  position: relative;
   background: var(--color-white);
   border: 1px solid var(--color-gray-200);
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
 }
 
 .dashboard-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-accent);
 }
 
 .dashboard-card__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .dashboard-card__title {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--color-gray-500);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .dashboard-card__icon {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.08);
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.dashboard-card:nth-child(2) .dashboard-card__icon {
+  background: rgba(245, 158, 11, 0.08);
+  color: #f59e0b;
+}
+
+.dashboard-card:nth-child(3) .dashboard-card__icon {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+.dashboard-card:nth-child(4) .dashboard-card__icon {
+  background: rgba(16, 185, 129, 0.08);
+  color: #10b981;
+}
+
+.dashboard-card__value-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .dashboard-card__value {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-navy);
-  line-height: 1.2;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
 }
 
 /* Color-coded risk labels inside dashboard */
@@ -2803,44 +2856,136 @@ body.dark-mode .report-section li {
   color: #22c55e;
 }
 
-/* Responsive Table */
+/* Score/Risk level badges */
+.dashboard-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+.dashboard-card__badge.high {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+.dashboard-card__badge.medium {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+.dashboard-card__badge.low {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+/* Horizontal Progress bar inside Risk Score Card */
+.dashboard-card__progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.dashboard-card__progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--color-gray-200);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.dashboard-card__progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: #22c55e;
+  transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.3s ease;
+}
+.dashboard-card__progress-fill.high {
+  background: #ef4444;
+}
+.dashboard-card__progress-fill.medium {
+  background: #f59e0b;
+}
+.dashboard-card__progress-fill.low {
+  background: #22c55e;
+}
+.dashboard-card__progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive Table & Row-Cards */
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  margin-top: 20px;
+  margin-top: 16px;
   border-radius: 12px;
-  border: 1px solid var(--color-gray-200);
+  border: none;
 }
 
 .report-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 10px;
   text-align: left;
   font-size: 14px;
 }
 
-.report-table th,
-.report-table td {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--color-gray-200);
-  vertical-align: middle;
-}
-
 .report-table th {
-  background: var(--color-gray-50);
-  font-weight: 600;
-  color: var(--color-navy);
+  padding: 12px 20px;
+  background: transparent !important;
+  font-weight: 700;
+  color: var(--color-gray-400) !important;
   text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.05em;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  border-bottom: none !important;
 }
 
 .report-table tbody tr {
-  transition: background-color var(--transition-fast);
+  background: var(--color-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+body.dark-mode .report-table tbody tr {
+  background: var(--color-gray-100);
 }
 
 .report-table tbody tr:hover {
-  background-color: var(--color-gray-50);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  background-color: var(--color-gray-50) !important;
+}
+
+body.dark-mode .report-table tbody tr:hover {
+  background-color: var(--color-gray-200) !important;
+}
+
+.report-table td {
+  padding: 18px 20px;
+  border-bottom: none !important;
+  vertical-align: middle;
+}
+
+.report-table td:first-child {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+  font-weight: 700;
+  color: var(--color-navy);
+}
+
+.report-table td:last-child {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
 }
 
 /* Severity Badges */
@@ -2872,6 +3017,100 @@ body.dark-mode .report-section li {
   background-color: rgba(34, 197, 94, 0.1);
   color: #22c55e;
   border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* Action Badges */
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  margin-right: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.action-badge.negotiate {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.action-badge.needs-attention {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.action-badge.review {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+.action-badge.accept {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* AI Suggestions Premium Checklist Grid */
+.suggestions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.suggestion-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+body.dark-mode .suggestion-card {
+  background: var(--color-gray-100);
+}
+
+.suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-accent);
+}
+
+.suggestion-card__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(196, 164, 99, 0.12);
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.suggestion-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.suggestion-card__title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-navy);
+  line-height: 1.4;
+}
+
+.suggestion-card__explanation {
+  font-size: 13px;
+  color: var(--color-gray-500);
+  line-height: 1.5;
 }
 
 /* Dark Mode overrides for Dashboard and Table */
@@ -4253,5 +4492,304 @@ body.landing-mode #analysis-report {
   margin-right: 0;
   padding-left: 32px;
   padding-right: 32px;
+}
+
+/* ==========================================================================
+   ContractShield — Refined Analysis Header, Meter Needle & Summary Card Styles
+   ========================================================================== */
+
+/* Page Header Wrapper */
+.analysis-report__header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  border-bottom: 1px solid var(--color-gray-200);
+  padding-bottom: 24px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.analysis-report__header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.analysis-report__title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-navy);
+  margin: 0 !important;
+  text-align: left !important;
+  letter-spacing: -0.03em;
+}
+
+.analysis-report__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-500);
+}
+
+.meta-separator {
+  color: var(--color-gray-300);
+}
+
+/* Animated status indicator dot */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #22c55e;
+}
+
+.status-indicator__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* Segmented Needle Meter Styles */
+.dashboard-card__segmented-meter {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  overflow: visible;
+}
+
+.meter-segment {
+  flex: 1;
+  height: 100%;
+  border-radius: 2px;
+}
+
+.meter-segment.segment-low {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.meter-segment.segment-medium {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.meter-segment.segment-high {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.meter-needle {
+  position: absolute;
+  top: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-white);
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  transform: translateX(-50%);
+  transition: left 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 10;
+}
+
+body.dark-mode .meter-needle {
+  background: #ffffff;
+}
+
+/* Overall Risk Card Breakdown Footer */
+.dashboard-card__breakdown {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.breakdown-item {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.breakdown-item.high {
+  color: #ef4444;
+}
+
+.breakdown-item.medium {
+  color: #f59e0b;
+}
+
+.breakdown-item.low {
+  color: #22c55e;
+}
+
+/* Executive Summary Card */
+.summary-card {
+  display: flex;
+  gap: 24px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  align-items: stretch;
+  margin-top: 12px;
+}
+
+body.dark-mode .summary-card {
+  background: var(--color-gray-100);
+}
+
+.summary-card__assessment-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 130px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-card__assessment-badge.high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.summary-card__assessment-badge.medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.summary-card__assessment-badge.low {
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.summary-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.summary-card__subtitle {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-gray-400);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.summary-card__text {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--color-gray-600);
+  margin: 0;
+}
+
+.summary-card__insights {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.insight-pill {
+  display: inline-flex;
+  gap: 6px;
+  background: var(--color-gray-50);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid var(--color-gray-200);
+}
+
+body.dark-mode .insight-pill {
+  background: var(--color-gray-200);
+}
+
+.insight-pill__label {
+  color: var(--color-gray-500);
+}
+
+.insight-pill__value {
+  color: var(--color-navy);
+}
+
+@media (max-width: 768px) {
+  .analysis-report__header-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .summary-card {
+    flex-direction: column;
+  }
+  .summary-card__assessment-badge {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+/* Staggered Animations for Dashboard Cards */
+.dashboard-card {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.dashboard-grid > div:nth-child(1) { animation-delay: 0.05s; }
+.dashboard-grid > div:nth-child(2) { animation-delay: 0.1s; }
+.dashboard-grid > div:nth-child(3) { animation-delay: 0.15s; }
+.dashboard-grid > div:nth-child(4) { animation-delay: 0.2s; }
+.dashboard-grid > div:nth-child(5) { animation-delay: 0.25s; }
+
+/* Staggered Animations for Report Sections */
+.report-section {
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.analysis-report > .report-section:nth-of-type(1) { animation-delay: 0.3s; }
+.analysis-report > .report-section:nth-of-type(2) { animation-delay: 0.35s; }
+.analysis-report > .report-section:nth-of-type(3) { animation-delay: 0.4s; }
+.analysis-report > .report-section:nth-of-type(4) { animation-delay: 0.45s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 

@@ -387,11 +387,22 @@
 
 <section id="analysis-report" class="analysis-report" style="display: none;">
 
-  <div class="analysis-report__header">
-    <h2>Contract Analysis Report</h2>
+  <div class="analysis-report__header-wrapper">
+    <div class="analysis-report__header-left">
+      <div class="analysis-report__meta-row">
+        <span class="status-indicator">
+          <span class="status-indicator__dot"></span>
+          Analysis Completed
+        </span>
+        <span class="meta-separator">•</span>
+        <span id="reportUploadDate">Today</span>
+      </div>
+      <h2 id="reportContractName" class="analysis-report__title">Contract Analysis Report</h2>
+    </div>
+    
     <div class="analysis-report__actions">
       <button class="report-download-btn" id="copyReportBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; margin-right: 8px;">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
@@ -406,14 +417,20 @@
     </div>
   </div>
 
-  <div class="report-card">
-
       <!-- SaaS Summary Dashboard Grid -->
       <div class="dashboard-grid">
         <div class="dashboard-card">
           <div class="dashboard-card__header">
             <span class="dashboard-card__title">Contract Type</span>
-            <span class="dashboard-card__icon">📄</span>
+            <span class="dashboard-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </span>
           </div>
           <div class="dashboard-card__value" id="dashboardContractType">Unknown</div>
         </div>
@@ -421,23 +438,62 @@
         <div class="dashboard-card">
           <div class="dashboard-card__header">
             <span class="dashboard-card__title">Overall Risk Level</span>
-            <span class="dashboard-card__icon" id="dashboardRiskLevelIcon">⚠️</span>
+            <span class="dashboard-card__icon" id="dashboardRiskLevelIcon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </span>
           </div>
           <div class="dashboard-card__value" id="dashboardRiskLevel">Medium Risk</div>
         </div>
 
-        <div class="dashboard-card">
+        <div class="dashboard-card risk-score-card">
           <div class="dashboard-card__header">
             <span class="dashboard-card__title">Overall Risk Score</span>
-            <span class="dashboard-card__icon">📈</span>
+            <span class="dashboard-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </span>
           </div>
-          <div class="dashboard-card__value" id="dashboardRiskScore">0%</div>
+          <div class="dashboard-card__value-container">
+            <div class="dashboard-card__value" id="dashboardRiskScore">0%</div>
+            <span class="dashboard-card__badge" id="dashboardRiskScoreBadge">Low</span>
+          </div>
+          <div class="dashboard-card__progress">
+            <div class="dashboard-card__segmented-meter">
+              <div class="meter-segment segment-low"></div>
+              <div class="meter-segment segment-medium"></div>
+              <div class="meter-segment segment-high"></div>
+              <div class="meter-needle" id="dashboardRiskNeedle" style="left: 0%;"></div>
+            </div>
+            <div class="dashboard-card__progress-labels">
+              <span>Low</span>
+              <span>Medium</span>
+              <span>High</span>
+            </div>
+          </div>
+          <div class="dashboard-card__breakdown" id="dashboardRiskBreakdown">
+            <span class="breakdown-item high">0 High</span>
+            <span class="breakdown-item medium">0 Med</span>
+            <span class="breakdown-item low">0 Low</span>
+          </div>
         </div>
 
         <div class="dashboard-card">
           <div class="dashboard-card__header">
             <span class="dashboard-card__title">Risky Clauses</span>
-            <span class="dashboard-card__icon">🔍</span>
+            <span class="dashboard-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </span>
           </div>
           <div class="dashboard-card__value" id="dashboardRiskyClauses">0</div>
         </div>
@@ -445,14 +501,19 @@
         <div class="dashboard-card">
           <div class="dashboard-card__header">
             <span class="dashboard-card__title">Key Obligations</span>
-            <span class="dashboard-card__icon">📋</span>
+            <span class="dashboard-card__icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </span>
           </div>
           <div class="dashboard-card__value" id="dashboardKeyObligations">0</div>
         </div>
       </div>
 
       <div class="report-section">
-          <h3>🔍 Detected Risks</h3>
+          <h3>⚠️ Detected Risks</h3>
           <div class="table-responsive">
             <table class="report-table" id="riskyClausesTable">
               <thead>
@@ -469,30 +530,35 @@
             </table>
           </div>
       </div>
-</div>
-      </div>
 
-      <div class="report-section">
-          <h3>🤖 AI Suggestions</h3>
-          <ul>
-              <li>Review payment conditions</li>
-              <li>Modify penalty clauses</li>
-              <li>Add confidentiality agreement</li>
-          </ul>
+  <div class="report-section">
+      <h3>💡 AI Suggestions</h3>
+      <div class="suggestions-grid" id="reportSuggestionsContainer">
+          <!-- Dynamically populated checklist cards -->
       </div>
+  </div>
 
-      <div class="report-section">
-          <h3>📄 Contract Summary</h3>
-          <p id="reportSummaryText">
-              This contract contains multiple clauses requiring review.
-              AI analysis suggests modifications before signing.
-          </p>
+  <div class="report-section">
+      <h3>📄 Contract Summary</h3>
+      <div class="summary-card">
+          <div class="summary-card__assessment-badge" id="summaryAssessmentBadge">Needs Review</div>
+          <div class="summary-card__content">
+              <h4 class="summary-card__subtitle">Executive Assessment</h4>
+              <p id="reportSummaryText" class="summary-card__text">
+                  This contract contains multiple clauses requiring review.
+                  AI analysis suggests modifications before signing.
+              </p>
+              <div class="summary-card__insights" id="summaryInsightsList">
+                  <!-- Dynamically populated insight pills -->
+              </div>
+          </div>
       </div>
+  </div>
 
-      <!-- Interactive QA Chat Section -->
-      <div class="report-section report-chat" id="reportChatSection">
-          <h3>💬 Ask Contract Shield</h3>
-          <p class="report-chat__desc">Have specific questions about this agreement? Ask our AI assistant for precise answers grounded in the contract text.</p>
+  <!-- Interactive QA Chat Section -->
+  <div class="report-section report-chat" id="reportChatSection">
+      <h3>💬 Ask Contract Shield</h3>
+      <p class="report-chat__desc">Have specific questions about this agreement? Ask our AI assistant for precise answers grounded in the contract text.</p>
           
           <div class="chat-container">
               <div class="chat-messages" id="chatMessages">
